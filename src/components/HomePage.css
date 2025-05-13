@@ -1,0 +1,79 @@
+.home-page {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 10px 15px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.welcome-banner {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  text-align: left;
+  width: 100%;
+  font-weight: 500;
+}
+
+.user-summary {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.user-summary h3 {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.profile-data {
+  margin-bottom: 15px;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
+}
+
+.profile-row:last-child {
+  border-bottom: none;
+}
+
+.edit-profile-btn {
+  width: 100%;
+  margin-top: 10px;
+  background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.food-diary-intro {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.food-diary-intro h3 {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.food-diary-intro p {
+  margin-bottom: 15px;
+  color: var(--tg-theme-hint-color, #999);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.diary-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.add-food-btn {
+  width: 100%;
+  background-color: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  margin: 0;
+  display: block;
+} 

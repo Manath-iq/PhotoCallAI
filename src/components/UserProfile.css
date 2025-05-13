@@ -1,0 +1,134 @@
+.user-profile-container {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 10px 15px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.profile-header {
+  margin-bottom: 20px;
+}
+
+.profile-edit-icon {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.user-initials {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.user-name-container {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.user-name {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.user-username {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #999);
+}
+
+.welcome-banner {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  text-align: left;
+  width: 100%;
+  font-weight: 500;
+}
+
+.profile-title {
+  margin-bottom: 5px;
+  font-size: 1.4rem;
+  text-align: left;
+}
+
+.profile-subtitle {
+  margin-bottom: 15px;
+  color: var(--tg-theme-hint-color, #999);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.gender-buttons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.gender-btn {
+  flex: 1;
+  background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  color: var(--tg-theme-text-color, #000000);
+  margin: 0;
+}
+
+.gender-btn.active {
+  background-color: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+}
+
+.error-message {
+  color: #e53935;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  text-align: left;
+}
+
+.submit-btn {
+  margin-top: 20px;
+  margin-left: 0;
+  margin-right: 0;
+  background-color: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  padding: 15px;
+  font-size: 1rem;
+  width: 100%;
+  display: block;
+} 
