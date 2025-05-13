@@ -1,26 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTelegram } from '../TelegramContext';
 import { STORAGE_KEYS, loadFromStorage } from '../utils/storage';
+import { Avatar } from 'antd';
+import { UserOutlined, EditOutlined } from '@ant-design/icons';
 import './ProfileIcon.css';
 
 const ProfileIcon = ({ onProfileClick }) => {
+  const [userProfile, setUserProfile] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
   const { user } = useTelegram();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const userProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
-  
-  const handleProfileClick = () => {
-    if (onProfileClick) {
-      onProfileClick();
-    } else {
-      setIsMenuOpen(!isMenuOpen);
+  const dropdownRef = useRef(null);
+
+  // Загружаем данные профиля из localStorage
+  useEffect(() => {
+    const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+    if (savedProfile) {
+      setUserProfile(savedProfile);
     }
+  }, []);
+
+  // Закрываем дропдаун при клике вне его области
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Получаем инициалы пользователя для аватара
+  const getUserInitials = () => {
+    if (user && user.first_name) {
+      const firstInitial = user.first_name.charAt(0).toUpperCase();
+      const lastInitial = user.last_name ? user.last_name.charAt(0).toUpperCase() : '';
+      return firstInitial + lastInitial;
+    }
+    return '?';
   };
-  
-  const getInitials = (name) => {
-    if (!name) return '?';
-    return name.charAt(0).toUpperCase();
-  };
-  
+
+  // Получаем текст цели из ID
   const getGoalText = (goalId) => {
     switch (goalId) {
       case 'weight_loss':
@@ -33,8 +57,8 @@ const ProfileIcon = ({ onProfileClick }) => {
         return 'Не указана';
     }
   };
-  
-  // Calculate BMI if profile data is available
+
+  // Рассчитываем ИМТ
   const calculateBMI = () => {
     if (!userProfile || !userProfile.height || !userProfile.weight) {
       return null;
@@ -46,52 +70,110 @@ const ProfileIcon = ({ onProfileClick }) => {
     return (weightInKg / (heightInMeters * heightInMeters)).toFixed(1);
   };
 
+  // Получаем статус ИМТ
+  const getBMIStatus = (bmi) => {
+    if (bmi === null) return null;
+    
+    if (bmi < 18.5) return 'Недостаточный вес';
+    if (bmi < 25) return 'Нормальный вес';
+    if (bmi < 30) return 'Избыточный вес';
+    return 'Ожирение';
+  };
+
   const bmi = calculateBMI();
+  const bmiStatus = getBMIStatus(bmi);
+  
+  const handleProfileToggle = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  const handleEditClick = () => {
+    setShowDropdown(false);
+    if (onProfileClick) {
+      onProfileClick();
+    }
+  };
 
   return (
-    <div className="profile-icon-container">
-      <div className="profile-icon" onClick={handleProfileClick}>
-        {user?.photo_url ? (
-          <img src={user.photo_url} alt={user.first_name} className="user-avatar" />
+    <div className="relative" ref={dropdownRef}>
+      <div 
+        className="flex items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200 rounded-lg px-2 py-1"
+        onClick={handleProfileToggle}
+      >
+        {user && user.photo_url ? (
+          <Avatar 
+            src={user.photo_url} 
+            size={36}
+            className="mr-2"
+          />
         ) : (
-          <div className="user-initials">
-            {getInitials(user?.first_name || 'User')}
-          </div>
+          <Avatar
+            size={36}
+            icon={<UserOutlined />}
+            className="mr-2 bg-primary text-white"
+          >
+            {getUserInitials()}
+          </Avatar>
         )}
-        <div className="user-name-container">
-          <span className="user-name">{user?.first_name || 'Пользователь'}</span>
-          {user?.username && <span className="user-username">@{user.username}</span>}
+        
+        <div className="flex flex-col text-left">
+          <span className="font-medium text-sm text-gray-800">
+            {user ? user.first_name : 'Пользователь'}
+          </span>
+          {user?.username && (
+            <span className="text-xs text-gray-500">@{user.username}</span>
+          )}
         </div>
       </div>
-      
-      {isMenuOpen && userProfile && (
-        <div className="profile-dropdown">
-          <div className="profile-info">
-            <div className="profile-detail">
-              <span className="detail-label">Пол:</span>
-              <span className="detail-value">{userProfile.gender === 'male' ? 'Мужской' : 'Женский'}</span>
-            </div>
-            <div className="profile-detail">
-              <span className="detail-label">Возраст:</span>
-              <span className="detail-value">{userProfile.age} лет</span>
-            </div>
-            <div className="profile-detail">
-              <span className="detail-label">Рост:</span>
-              <span className="detail-value">{userProfile.height} см</span>
-            </div>
-            <div className="profile-detail">
-              <span className="detail-label">Вес:</span>
-              <span className="detail-value">{userProfile.weight} кг</span>
-            </div>
-            {bmi && (
-              <div className="profile-detail">
-                <span className="detail-label">ИМТ:</span>
-                <span className="detail-value">{bmi}</span>
+
+      {showDropdown && userProfile && (
+        <div className="absolute top-full left-0 bg-white rounded-xl shadow-lg mt-2 p-4 z-10 animate-fadeIn w-full min-w-[280px]">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-lg font-bold text-gray-800 m-0">Профиль</h3>
+            <button 
+              onClick={handleEditClick}
+              className="flex items-center text-primary hover:text-primary-dark"
+            >
+              <EditOutlined /> 
+              <span className="ml-1">Изменить</span>
+            </button>
+          </div>
+          
+          <div className="border-t border-gray-200 pt-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="py-2">
+                <p className="text-sm text-gray-500 m-0">Возраст</p>
+                <p className="font-semibold m-0">{userProfile.age} лет</p>
               </div>
-            )}
-            <div className="profile-detail">
-              <span className="detail-label">Цель:</span>
-              <span className="detail-value">{getGoalText(userProfile.goal)}</span>
+              
+              <div className="py-2">
+                <p className="text-sm text-gray-500 m-0">Пол</p>
+                <p className="font-semibold m-0">
+                  {userProfile.gender === 'male' ? 'Мужской' : 'Женский'}
+                </p>
+              </div>
+              
+              <div className="py-2">
+                <p className="text-sm text-gray-500 m-0">Рост</p>
+                <p className="font-semibold m-0">{userProfile.height} см</p>
+              </div>
+              
+              <div className="py-2">
+                <p className="text-sm text-gray-500 m-0">Вес</p>
+                <p className="font-semibold m-0">{userProfile.weight} кг</p>
+              </div>
+              
+              <div className="py-2">
+                <p className="text-sm text-gray-500 m-0">Цель</p>
+                <p className="font-semibold m-0">{getGoalText(userProfile.goal)}</p>
+              </div>
+              
+              {bmi && (
+                <div className="py-2">
+                  <p className="text-sm text-gray-500 m-0">ИМТ</p>
+                  <p className="font-semibold m-0">{bmi} ({bmiStatus})</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

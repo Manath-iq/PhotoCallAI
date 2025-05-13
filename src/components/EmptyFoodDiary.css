@@ -1,0 +1,56 @@
+.empty-food-diary {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 15px 20px;
+  min-height: calc(100vh - 60px);
+  max-height: calc(100vh - 60px);
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.empty-diary-text {
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 5px 0 0;
+  padding-top: 0;
+}
+
+.emoji-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+  margin: 0 auto;
+  padding-top: 0;
+  padding-bottom: 10px;
+  max-height: 55vh;
+}
+
+.food-emoji {
+  width: auto;
+  height: auto;
+  max-width: 90%;
+  max-height: 55vh;
+  object-fit: contain;
+}
+
+.empty-food-diary .add-food-btn {
+  width: 100%;
+  margin: 0;
+  padding: 14px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 10px;
+  background-color: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+} 

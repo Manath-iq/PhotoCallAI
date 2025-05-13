@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { STORAGE_KEYS, saveToStorage, loadFromStorage } from '../utils/storage';
 import { useTelegram } from '../TelegramContext';
+import { Form, Input, Select, Radio, message } from 'antd';
+import { UserOutlined, SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Button } from './common';
+import './UserProfile.css';
 
 // Default profile values
 const DEFAULT_PROFILE = {
@@ -19,87 +23,55 @@ const GOALS = [
 ];
 
 const UserProfile = ({ onComplete }) => {
-  const [profile, setProfile] = useState(DEFAULT_PROFILE);
-  const [errors, setErrors] = useState({});
+  const [form] = Form.useForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { webApp, user } = useTelegram();
 
   useEffect(() => {
     // Try to load existing profile
     const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
     if (savedProfile) {
-      setProfile(savedProfile);
+      form.setFieldsValue(savedProfile);
     }
     
     // Set back button handler if available
     if (webApp) {
       webApp.BackButton.hide();
     }
-  }, [webApp]);
+  }, [webApp, form]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfile({
-      ...profile,
-      [name]: value,
-    });
+  const handleSubmit = async (values) => {
+    setIsSubmitting(true);
     
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: null,
-      });
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!profile.gender) {
-      newErrors.gender = 'Выберите пол';
-    }
-    
-    if (!profile.age || isNaN(profile.age) || profile.age < 16 || profile.age > 120) {
-      newErrors.age = 'Укажите возраст от 16 до 120 лет';
-    }
-    
-    if (!profile.height || isNaN(profile.height) || profile.height < 120 || profile.height > 250) {
-      newErrors.height = 'Укажите рост от 120 до 250 см';
-    }
-    
-    if (!profile.weight || isNaN(profile.weight) || profile.weight < 30 || profile.weight > 300) {
-      newErrors.weight = 'Укажите вес от 30 до 300 кг';
-    }
-    
-    if (!profile.goal) {
-      newErrors.goal = 'Выберите цель';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
+    try {
       // Save to localStorage
-      saveToStorage(STORAGE_KEYS.USER_PROFILE, profile);
-      
-      // Notify parent component
-      if (onComplete) {
-        onComplete(profile);
-      }
+      saveToStorage(STORAGE_KEYS.USER_PROFILE, values);
       
       // Haptic feedback if available
       if (webApp && webApp.HapticFeedback) {
         webApp.HapticFeedback.notificationOccurred('success');
       }
-    } else {
+      
+      message.success({
+        content: 'Профиль сохранен',
+        icon: <CheckCircleOutlined style={{ color: '#00b96b' }} />,
+        duration: 2
+      });
+      
+      // Notify parent component
+      if (onComplete) {
+        onComplete(values);
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      message.error('Ошибка при сохранении профиля');
+      
       // Error haptic feedback
       if (webApp && webApp.HapticFeedback) {
         webApp.HapticFeedback.notificationOccurred('error');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -109,115 +81,124 @@ const UserProfile = ({ onComplete }) => {
   };
 
   return (
-    <div className="user-profile-container">
-      <div className="profile-header">
+    <div className="px-4 py-2 max-w-full">
+      <div className="mb-6">
         {user && (
-          <div className="profile-edit-icon">
+          <div className="flex items-center mb-4">
             {user.photo_url ? (
-              <img src={user.photo_url} alt={user.first_name} className="user-avatar" />
+              <div className="w-12 h-12 rounded-full overflow-hidden mr-3">
+                <img src={user.photo_url} alt={user.first_name} className="w-full h-full object-cover" />
+              </div>
             ) : (
-              <div className="user-initials">
+              <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center mr-3">
                 {getInitials(user.first_name || 'User')}
               </div>
             )}
-            <div className="user-name-container">
-              <span className="user-name">{user.first_name || 'Пользователь'}</span>
-              {user.username && <span className="user-username">@{user.username}</span>}
+            <div className="flex flex-col">
+              <span className="font-medium text-base">{user.first_name || 'Пользователь'}</span>
+              {user.username && <span className="text-sm text-gray-500">@{user.username}</span>}
             </div>
           </div>
         )}
-        <h2 className="profile-title">Заполните профиль</h2>
-        <p className="profile-subtitle">Данные для оптимального подбора питания</p>
+        <h2 className="text-xl font-bold mb-1">Заполните профиль</h2>
+        <p className="text-gray-500 text-sm">Данные для оптимального подбора питания</p>
       </div>
       
-      <form onSubmit={handleSubmit} className="profile-form">
-        <div className="form-group">
-          <label>Пол</label>
-          <div className="gender-buttons">
-            <button 
-              type="button" 
-              className={`gender-btn ${profile.gender === 'male' ? 'active' : ''}`}
-              onClick={() => handleInputChange({ target: { name: 'gender', value: 'male' } })}
-            >
-              Мужской
-            </button>
-            <button 
-              type="button" 
-              className={`gender-btn ${profile.gender === 'female' ? 'active' : ''}`}
-              onClick={() => handleInputChange({ target: { name: 'gender', value: 'female' } })}
-            >
-              Женский
-            </button>
-          </div>
-          {errors.gender && <div className="error-message">{errors.gender}</div>}
-        </div>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        requiredMark={false}
+        className="space-y-4 w-full"
+        initialValues={DEFAULT_PROFILE}
+      >
+        <Form.Item
+          name="gender"
+          label="Пол"
+          rules={[{ required: true, message: 'Выберите пол' }]}
+        >
+          <Radio.Group className="flex w-full">
+            <Radio.Button value="male" className="flex-1 text-center">Мужской</Radio.Button>
+            <Radio.Button value="female" className="flex-1 text-center">Женский</Radio.Button>
+          </Radio.Group>
+        </Form.Item>
         
-        <div className="form-group">
-          <label htmlFor="age">Возраст (лет)</label>
-          <input
+        <Form.Item
+          name="age"
+          label="Возраст (лет)"
+          rules={[
+            { required: true, message: 'Введите возраст' },
+            { type: 'number', min: 16, max: 120, message: 'Укажите возраст от 16 до 120 лет' }
+          ]}
+        >
+          <Input
             type="number"
-            id="age"
-            name="age"
             placeholder="Например: 30"
-            value={profile.age}
-            onChange={handleInputChange}
-            min="16"
-            max="120"
+            min={16}
+            max={120}
           />
-          {errors.age && <div className="error-message">{errors.age}</div>}
-        </div>
+        </Form.Item>
         
-        <div className="form-group">
-          <label htmlFor="height">Рост (см)</label>
-          <input
+        <Form.Item
+          name="height"
+          label="Рост (см)"
+          rules={[
+            { required: true, message: 'Введите рост' },
+            { type: 'number', min: 120, max: 250, message: 'Укажите рост от 120 до 250 см' }
+          ]}
+        >
+          <Input
             type="number"
-            id="height"
-            name="height"
             placeholder="Например: 175"
-            value={profile.height}
-            onChange={handleInputChange}
-            min="120"
-            max="250"
+            min={120}
+            max={250}
           />
-          {errors.height && <div className="error-message">{errors.height}</div>}
-        </div>
+        </Form.Item>
         
-        <div className="form-group">
-          <label htmlFor="weight">Вес (кг)</label>
-          <input
+        <Form.Item
+          name="weight"
+          label="Вес (кг)"
+          rules={[
+            { required: true, message: 'Введите вес' },
+            { type: 'number', min: 30, max: 300, message: 'Укажите вес от 30 до 300 кг' }
+          ]}
+        >
+          <Input
             type="number"
-            id="weight"
-            name="weight"
             placeholder="Например: 70"
-            value={profile.weight}
-            onChange={handleInputChange}
-            min="30"
-            max="300"
+            min={30}
+            max={300}
           />
-          {errors.weight && <div className="error-message">{errors.weight}</div>}
-        </div>
+        </Form.Item>
         
-        <div className="form-group">
-          <label>Цель</label>
-          <select 
-            name="goal" 
-            value={profile.goal} 
-            onChange={handleInputChange}
-          >
-            <option value="">Выберите цель</option>
+        <Form.Item
+          name="goal"
+          label="Цель"
+          rules={[{ required: true, message: 'Выберите цель' }]}
+        >
+          <Select placeholder="Выберите цель">
             {GOALS.map(goal => (
-              <option key={goal.id} value={goal.id}>
+              <Select.Option key={goal.id} value={goal.id}>
                 {goal.label}
-              </option>
+              </Select.Option>
             ))}
-          </select>
-          {errors.goal && <div className="error-message">{errors.goal}</div>}
-        </div>
+          </Select>
+        </Form.Item>
         
-        <button type="submit" className="submit-btn">
-          Сохранить
-        </button>
-      </form>
+        <Form.Item className="mt-4 mx-0 w-full">
+          <Button 
+            type="primary"
+            htmlType="submit"
+            size="large"
+            block
+            loading={isSubmitting}
+            icon={<SaveOutlined />}
+            className="w-full"
+          >
+            Сохранить
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };
