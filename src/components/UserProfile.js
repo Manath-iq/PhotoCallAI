@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { STORAGE_KEYS, saveToStorage, loadFromStorage } from '../utils/storage';
 import { useTelegram } from '../TelegramContext';
 import { Form, Input, Select, Radio, message } from 'antd';
-import { UserOutlined, SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { Button } from './common';
+import { UserOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import './UserProfile.css';
 
 // Default profile values
@@ -26,6 +25,7 @@ const UserProfile = ({ onComplete }) => {
   const [form] = Form.useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { webApp, user } = useTelegram();
+  const formContainerRef = useRef(null);
 
   useEffect(() => {
     // Try to load existing profile
@@ -37,13 +37,70 @@ const UserProfile = ({ onComplete }) => {
     // Set back button handler if available
     if (webApp) {
       webApp.BackButton.hide();
+      
+      // Configure the Main Button
+      if (webApp.MainButton) {
+        webApp.MainButton.setText('Сохранить');
+        webApp.MainButton.show();
+        webApp.MainButton.onClick(handleMainButtonClick);
+      }
     }
+    
+    return () => {
+      // Clean up when component unmounts
+      if (webApp && webApp.MainButton) {
+        webApp.MainButton.offClick(handleMainButtonClick);
+        webApp.MainButton.hide();
+      }
+    };
   }, [webApp, form]);
+  
+  // Fix for keyboard appearance and cursor position issues
+  useEffect(() => {
+    // Fix for focusing form inputs in mobile
+    const handleFocus = () => {
+      // Small delay to let the keyboard open first
+      setTimeout(() => {
+        if (formContainerRef.current) {
+          // This helps ensure the cursor is visible
+          const activeElement = document.activeElement;
+          if (activeElement) {
+            activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 300);
+    };
+    
+    // Add listeners to all inputs in the form
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+      input.addEventListener('focus', handleFocus);
+    });
+    
+    return () => {
+      // Clean up
+      inputs.forEach(input => {
+        input.removeEventListener('focus', handleFocus);
+      });
+    };
+  }, []);
+
+  const handleMainButtonClick = () => {
+    form.submit();
+  };
 
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     
     try {
+      // Convert numeric string values to numbers
+      const numericFields = ['age', 'height', 'weight'];
+      numericFields.forEach(field => {
+        if (values[field]) {
+          values[field] = Number(values[field]);
+        }
+      });
+      
       // Save to localStorage
       saveToStorage(STORAGE_KEYS.USER_PROFILE, values);
       
@@ -61,6 +118,11 @@ const UserProfile = ({ onComplete }) => {
       // Notify parent component
       if (onComplete) {
         onComplete(values);
+      }
+      
+      // Hide the Main Button after submission
+      if (webApp && webApp.MainButton) {
+        webApp.MainButton.hide();
       }
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -81,7 +143,7 @@ const UserProfile = ({ onComplete }) => {
   };
 
   return (
-    <div className="px-4 py-2 max-w-full">
+    <div className="px-4 py-2 max-w-full profile-container" ref={formContainerRef}>
       <div className="mb-6">
         {user && (
           <div className="flex items-center mb-4">
@@ -111,6 +173,7 @@ const UserProfile = ({ onComplete }) => {
         requiredMark={false}
         className="space-y-4 w-full"
         initialValues={DEFAULT_PROFILE}
+        validateTrigger="onBlur"
       >
         <Form.Item
           name="gender"
@@ -128,7 +191,15 @@ const UserProfile = ({ onComplete }) => {
           label="Возраст (лет)"
           rules={[
             { required: true, message: 'Введите возраст' },
-            { type: 'number', min: 16, max: 120, message: 'Укажите возраст от 16 до 120 лет' }
+            { 
+              validator: (_, value) => {
+                const num = Number(value);
+                if (isNaN(num) || num < 16 || num > 120) {
+                  return Promise.reject('Укажите возраст от 16 до 120 лет');
+                }
+                return Promise.resolve();
+              }
+            }
           ]}
         >
           <Input
@@ -144,7 +215,15 @@ const UserProfile = ({ onComplete }) => {
           label="Рост (см)"
           rules={[
             { required: true, message: 'Введите рост' },
-            { type: 'number', min: 120, max: 250, message: 'Укажите рост от 120 до 250 см' }
+            { 
+              validator: (_, value) => {
+                const num = Number(value);
+                if (isNaN(num) || num < 120 || num > 250) {
+                  return Promise.reject('Укажите рост от 120 до 250 см');
+                }
+                return Promise.resolve();
+              }
+            }
           ]}
         >
           <Input
@@ -160,7 +239,15 @@ const UserProfile = ({ onComplete }) => {
           label="Вес (кг)"
           rules={[
             { required: true, message: 'Введите вес' },
-            { type: 'number', min: 30, max: 300, message: 'Укажите вес от 30 до 300 кг' }
+            { 
+              validator: (_, value) => {
+                const num = Number(value);
+                if (isNaN(num) || num < 30 || num > 300) {
+                  return Promise.reject('Укажите вес от 30 до 300 кг');
+                }
+                return Promise.resolve();
+              }
+            }
           ]}
         >
           <Input
@@ -183,20 +270,6 @@ const UserProfile = ({ onComplete }) => {
               </Select.Option>
             ))}
           </Select>
-        </Form.Item>
-        
-        <Form.Item className="mt-4 mx-0 w-full">
-          <Button 
-            type="primary"
-            htmlType="submit"
-            size="large"
-            block
-            loading={isSubmitting}
-            icon={<SaveOutlined />}
-            className="w-full"
-          >
-            Сохранить
-          </Button>
         </Form.Item>
       </Form>
     </div>

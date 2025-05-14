@@ -49,6 +49,34 @@
   line-height: 42px !important;
 }
 
+/* Input fix for mobile keyboard */
+input[type="number"] {
+  font-size: 16px !important; /* Prevents iOS from zooming in */
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Prevent zooming on inputs for iOS */
+@media screen and (-webkit-min-device-pixel-ratio:0) { 
+  select,
+  textarea,
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  input[type="datetime"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="month"],
+  input[type="time"],
+  input[type="week"],
+  input[type="email"],
+  input[type="url"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="color"] {
+    font-size: 16px !important;
+  }
+}
+
 /* Адаптивные отступы для маленьких экранов */
 @media (max-width: 375px) {
   .ant-form-item {
@@ -58,6 +86,22 @@
   .ant-form-item-label {
     padding-bottom: 4px;
   }
+}
+
+/* Profile container for proper scrolling with mobile keyboard */
+.profile-container {
+  overflow-y: auto;
+  max-height: 100%;
+  padding-bottom: 60px; /* Add bottom padding for keyboard */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Fix cursor visibility in inputs */
+.ant-input:focus,
+.ant-input-number-input:focus,
+.ant-select-selector:focus {
+  position: relative;
+  z-index: 2;
 }
 
 /* Анимации для перехода */
