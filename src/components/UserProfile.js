@@ -26,6 +26,22 @@ const UserProfile = ({ onComplete }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { webApp, user } = useTelegram();
   const formContainerRef = useRef(null);
+  const mainButtonIntervalRef = useRef(null);
+
+  // Функция для настройки и показа MainButton
+  const setupMainButton = () => {
+    if (webApp && webApp.MainButton) {
+      webApp.MainButton.setText('Сохранить');
+      webApp.MainButton.setParams({
+        color: '#00b96b',
+        text_color: '#ffffff',
+        is_active: true,
+        is_visible: true
+      });
+      webApp.MainButton.onClick(handleMainButtonClick);
+      webApp.MainButton.show();
+    }
+  };
 
   useEffect(() => {
     // Try to load existing profile
@@ -38,26 +54,27 @@ const UserProfile = ({ onComplete }) => {
     if (webApp) {
       webApp.BackButton.hide();
       
-      // Configure the Main Button
-      if (webApp.MainButton) {
-        webApp.MainButton.setText('Сохранить');
-        webApp.MainButton.show();
-        // Set color to match app theme
-        webApp.MainButton.setParams({
-          color: '#00b96b',
-          text_color: '#ffffff',
-          is_active: true,
-          is_visible: true
-        });
-        webApp.MainButton.onClick(handleMainButtonClick);
-      }
+      // Настраиваем MainButton и устанавливаем интервал для проверки видимости
+      setupMainButton();
+      
+      // Устанавливаем интервал, который будет проверять видимость кнопки
+      // и показывать её, если она скрыта
+      mainButtonIntervalRef.current = setInterval(() => {
+        if (webApp.MainButton && !webApp.MainButton.isVisible) {
+          setupMainButton();
+        }
+      }, 300);
     }
     
-    // Keep MainButton visible when component unmounts
+    // Cleanup when component unmounts
     return () => {
-      // Clean up when component unmounts
       if (webApp && webApp.MainButton) {
         webApp.MainButton.offClick(handleMainButtonClick);
+      }
+      
+      // Очищаем интервал при размонтировании компонента
+      if (mainButtonIntervalRef.current) {
+        clearInterval(mainButtonIntervalRef.current);
       }
     };
   }, [webApp, form]);
@@ -75,6 +92,10 @@ const UserProfile = ({ onComplete }) => {
             activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
+        
+        // Повторно показываем MainButton при фокусе на поле ввода,
+        // так как клавиатура может скрывать кнопку
+        setupMainButton();
       }, 300);
     };
     
@@ -139,6 +160,11 @@ const UserProfile = ({ onComplete }) => {
     }
   };
 
+  // Обработчик изменения формы - показываем кнопку при каждом изменении
+  const handleFormChange = () => {
+    setupMainButton();
+  };
+
   const getInitials = (name) => {
     if (!name) return '?';
     return name.charAt(0).toUpperCase();
@@ -173,9 +199,10 @@ const UserProfile = ({ onComplete }) => {
         layout="vertical"
         onFinish={handleSubmit}
         requiredMark={false}
-        className="space-y-4 w-full"
+        className="space-y-4 w-full pb-16"
         initialValues={DEFAULT_PROFILE}
         validateTrigger="onBlur"
+        onValuesChange={handleFormChange}
       >
         <Form.Item
           name="gender"
@@ -209,6 +236,7 @@ const UserProfile = ({ onComplete }) => {
             placeholder="Например: 30"
             min={16}
             max={120}
+            onFocus={() => setupMainButton()}
           />
         </Form.Item>
         
@@ -233,6 +261,7 @@ const UserProfile = ({ onComplete }) => {
             placeholder="Например: 175"
             min={120}
             max={250}
+            onFocus={() => setupMainButton()}
           />
         </Form.Item>
         
@@ -257,6 +286,7 @@ const UserProfile = ({ onComplete }) => {
             placeholder="Например: 70"
             min={30}
             max={300}
+            onFocus={() => setupMainButton()}
           />
         </Form.Item>
         
@@ -265,7 +295,10 @@ const UserProfile = ({ onComplete }) => {
           label="Цель"
           rules={[{ required: true, message: 'Выберите цель' }]}
         >
-          <Select placeholder="Выберите цель">
+          <Select 
+            placeholder="Выберите цель"
+            onFocus={() => setupMainButton()}
+          >
             {GOALS.map(goal => (
               <Select.Option key={goal.id} value={goal.id}>
                 {goal.label}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTelegram } from '../TelegramContext';
 import { STORAGE_KEYS, loadFromStorage, saveToStorage } from '../utils/storage';
 import { getDailySummary } from '../utils/apiService';
@@ -14,6 +14,7 @@ const DailySummary = ({ onClose, onClearDiary }) => {
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState(null);
   const [clearConfirmVisible, setClearConfirmVisible] = useState(false);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     fetchDailySummary();
@@ -22,6 +23,16 @@ const DailySummary = ({ onClose, onClearDiary }) => {
     if (webApp && webApp.BackButton) {
       webApp.BackButton.show();
       webApp.BackButton.onClick(onClose);
+    }
+
+    // Expand WebApp to maximum height to enable scrolling
+    if (webApp && typeof webApp.expand === 'function') {
+      webApp.expand();
+    }
+
+    // Enable vertical swipes if supported (for newer Telegram clients)
+    if (webApp && typeof webApp.enableVerticalSwipes === 'function') {
+      webApp.enableVerticalSwipes();
     }
 
     return () => {
@@ -113,40 +124,52 @@ const DailySummary = ({ onClose, onClearDiary }) => {
 
   // Parse summary sections (formats the AI response into sections)
   const formatSummary = (text) => {
+    if (!text) return { __html: '' };
+    
+    // Fix newlines in the text to preserve paragraphs
+    const textWithParagraphs = text.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>');
+    
     // Replace numbered list markers (1., 2., etc.) with section headers
-    const formattedText = text
-      .replace(/1\.\s*(.*?)(?=\n|$)/g, '<strong class="text-lg">Общая оценка рациона</strong><p>$1</p>')
-      .replace(/2\.\s*(.*?)(?=\n|$)/g, '<strong class="text-lg">Анализ БЖУ и калорийности</strong><p>$1</p>')
-      .replace(/3\.\s*(.*?)(?=\n|$)/g, '<strong class="text-lg">Рекомендации по улучшению</strong><p>$1</p>')
-      .replace(/4\.\s*(.*?)(?=\n|$)/g, '<strong class="text-lg">Советы на завтра</strong><p>$1</p>');
+    const formattedText = textWithParagraphs
+      .replace(/1\.\s*(.*?)(?=<br\/>2\.|$)/s, '<strong class="text-lg">Общая оценка рациона</strong><p>$1</p>')
+      .replace(/2\.\s*(.*?)(?=<br\/>3\.|$)/s, '<strong class="text-lg">Анализ БЖУ и калорийности</strong><p>$1</p>')
+      .replace(/3\.\s*(.*?)(?=<br\/>4\.|$)/s, '<strong class="text-lg">Рекомендации по улучшению</strong><p>$1</p>')
+      .replace(/4\.\s*(.*?)(?=$)/s, '<strong class="text-lg">Советы на завтра</strong><p>$1</p>');
     
     return { __html: formattedText };
   };
 
   return (
-    <div className="p-4 pb-20">
-      <div className="flex items-center mb-4">
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
-          onClick={onClose}
-          className="mr-2"
-        />
-        <h2 className="text-xl font-bold text-gray-800 m-0">Итоги дня</h2>
+    <div className="flex flex-col h-full overflow-hidden" ref={containerRef}>
+      {/* Fixed header */}
+      <div className="sticky top-0 bg-white z-10 p-4 border-b">
+        <div className="flex items-center">
+          <Button 
+            type="text" 
+            icon={<ArrowLeftOutlined />} 
+            onClick={onClose}
+            className="mr-2"
+          />
+          <h2 className="text-xl font-bold text-gray-800 m-0">Итоги дня</h2>
+        </div>
       </div>
       
-      <Card className="mb-4">
-        <Title level={4} className="text-primary mb-4">
-          Анализ вашего питания
-        </Title>
-        
-        <div 
-          className="summary-content" 
-          dangerouslySetInnerHTML={formatSummary(summary)}
-        />
-      </Card>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto p-4 pb-28">
+        <Card className="mb-4">
+          <Title level={4} className="text-primary mb-4">
+            Анализ вашего питания
+          </Title>
+          
+          <div 
+            className="summary-content"
+            dangerouslySetInnerHTML={formatSummary(summary)}
+          />
+        </Card>
+      </div>
       
-      <div className="flex justify-center">
+      {/* Fixed footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t flex justify-center">
         <Button
           type="primary"
           icon={<CheckCircleOutlined />}
