@@ -4,15 +4,17 @@ import UserProfile from './UserProfile';
 import ProfileIcon from './ProfileIcon';
 import EmptyFoodDiary from './EmptyFoodDiary';
 import AddFood from './AddFood';
+import DailySummary from './DailySummary';
 import { useTelegram } from '../TelegramContext';
-import { Empty, List, Tag, Divider } from 'antd';
-import { DeleteOutlined, PlusOutlined, CalendarOutlined } from '@ant-design/icons';
+import { Empty, List, Tag, Divider, Tooltip, message, Alert } from 'antd';
+import { DeleteOutlined, PlusOutlined, CalendarOutlined, LineChartOutlined } from '@ant-design/icons';
 import { Button, Card } from './common';
 
 const HomePage = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [showProfileForm, setShowProfileForm] = useState(false);
   const [showAddFood, setShowAddFood] = useState(false);
+  const [showDailySummary, setShowDailySummary] = useState(false);
   const [foodDiary, setFoodDiary] = useState([]);
   const { webApp, user } = useTelegram();
 
@@ -44,7 +46,7 @@ const HomePage = () => {
   // Set up MainButton visibility and callback
   useEffect(() => {
     if (webApp && webApp.MainButton) {
-      if (!showProfileForm && !showAddFood) {
+      if (!showProfileForm && !showAddFood && !showDailySummary) {
         // Main screen - show "Add Food" button
         webApp.MainButton.setText('Добавить приём пищи');
         webApp.MainButton.setParams({
@@ -53,14 +55,11 @@ const HomePage = () => {
         });
         webApp.MainButton.onClick(handleAddFood);
         webApp.MainButton.show();
-      } else if (showAddFood) {
-        // When adding food, hide the main button 
-        // (AddFood component handles its own buttons)
+      } else {
+        // Hide main button on other screens
         webApp.MainButton.hide();
         webApp.MainButton.offClick(handleAddFood);
       }
-      // When showing profile form, don't do anything with MainButton
-      // (UserProfile component handles its own MainButton)
     }
 
     // Cleanup
@@ -69,7 +68,7 @@ const HomePage = () => {
         webApp.MainButton.offClick(handleAddFood);
       }
     };
-  }, [webApp, showProfileForm, showAddFood]);
+  }, [webApp, showProfileForm, showAddFood, showDailySummary]);
 
   const handleProfileComplete = (profile) => {
     setUserProfile(profile);
@@ -104,6 +103,26 @@ const HomePage = () => {
     saveToStorage(`${STORAGE_KEYS.FOOD_DIARY}_${today}`, updatedDiary);
   };
 
+  const handleShowDailySummary = () => {
+    if (foodDiary.length === 0) {
+      message.warning('Добавьте хотя бы один приём пищи для получения итогов дня');
+      return;
+    }
+    setShowDailySummary(true);
+  };
+
+  const handleCloseDailySummary = () => {
+    setShowDailySummary(false);
+  };
+
+  const handleClearDiary = () => {
+    // Clear diary for today
+    const today = new Date().toISOString().split('T')[0];
+    saveToStorage(`${STORAGE_KEYS.FOOD_DIARY}_${today}`, []);
+    setFoodDiary([]);
+    message.success('Дневник питания за сегодня очищен');
+  };
+  
   // Format date as readable string
   const formatDate = () => {
     const now = new Date();
@@ -121,6 +140,10 @@ const HomePage = () => {
   
   if (showAddFood) {
     return <AddFood onSave={handleFoodSave} onCancel={handleCancelAddFood} />;
+  }
+
+  if (showDailySummary) {
+    return <DailySummary onClose={handleCloseDailySummary} onClearDiary={handleClearDiary} />;
   }
 
   // Get meal type tag color
@@ -155,6 +178,15 @@ const HomePage = () => {
             <span className="font-medium">{formatDate()}</span>
           </div>
         </div>
+        
+        <Alert 
+          message="Приватность"
+          description="Все данные хранятся только на вашем устройстве. Фото отправляются на сервер только для анализа и не сохраняются."
+          type="info"
+          showIcon
+          closable
+          className="mb-4"
+        />
       </div>
       
       <div className="flex-1 overflow-auto px-4 pb-4">
@@ -162,7 +194,18 @@ const HomePage = () => {
           <EmptyFoodDiary />
         ) : (
           <div className="mb-4">
-            <Card>
+            <Card className="mb-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold m-0">Приёмы пищи сегодня</h2>
+                <Button 
+                  type="primary" 
+                  icon={<LineChartOutlined />} 
+                  onClick={handleShowDailySummary}
+                >
+                  Итоги дня
+                </Button>
+              </div>
+              
               <List
                 itemLayout="vertical"
                 dataSource={foodDiary}
@@ -205,7 +248,7 @@ const HomePage = () => {
                         <div>
                           {item.description && <p className="text-gray-600">{item.description}</p>}
                           {item.nutrients && (
-                            <div className="flex items-center mt-2 text-xs">
+                            <div className="flex flex-wrap items-center mt-2 text-xs">
                               <span className="mr-3">Б: {item.nutrients.protein}г</span>
                               <span className="mr-3">Ж: {item.nutrients.fat}г</span>
                               <span className="mr-3">У: {item.nutrients.carbs}г</span>
@@ -219,6 +262,19 @@ const HomePage = () => {
                 )}
               />
             </Card>
+            
+            <div className="text-center">
+              <Tooltip title="Получите анализ вашего питания за день и рекомендации от AI">
+                <Button 
+                  type="primary" 
+                  size="large"
+                  icon={<LineChartOutlined />} 
+                  onClick={handleShowDailySummary}
+                >
+                  Получить итоги дня
+                </Button>
+              </Tooltip>
+            </div>
           </div>
         )}
       </div>

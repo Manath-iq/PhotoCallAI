@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useTelegram } from '../TelegramContext';
 import { STORAGE_KEYS, saveToStorage, loadFromStorage } from '../utils/storage';
 import { compressImage } from '../utils/imageCompressor';
-import { Form, Input, Select, Upload, message } from 'antd';
+import { analyzeFood } from '../utils/apiService';
+import { Form, Input, Select, Upload, message, Spin } from 'antd';
 import { PlusOutlined, CameraOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from './common';
 import './AddFood.css';
@@ -17,6 +18,9 @@ const AddFood = ({ onSave, onCancel }) => {
   const [photo, setPhoto] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeResult, setAnalyzeResult] = useState(null);
+  const [photoBase64, setPhotoBase64] = useState(null);
 
   // Handle image selection
   const handlePhotoChange = async (info) => {
@@ -39,6 +43,13 @@ const AddFood = ({ onSave, onCancel }) => {
         });
         
         setPhotoPreview(compressedImage);
+        
+        // Extract base64 data from dataURL by removing the prefix
+        const base64Data = compressedImage.split(',')[1];
+        setPhotoBase64(base64Data);
+        
+        // After compressing, start analyzing the image
+        await analyzePhotoIfAvailable(base64Data, form.getFieldValue('foodDescription'));
       } catch (error) {
         console.error('Error compressing image:', error);
         message.error('Ошибка при обработке изображения');
@@ -47,11 +58,39 @@ const AddFood = ({ onSave, onCancel }) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           setPhotoPreview(reader.result);
+          // Extract base64 data from dataURL
+          const base64Data = reader.result.split(',')[1];
+          setPhotoBase64(base64Data);
         };
         reader.readAsDataURL(file);
       } finally {
         setIsCompressing(false);
       }
+    }
+  };
+  
+  // Analyze photo using AI
+  const analyzePhotoIfAvailable = async (base64Image, description) => {
+    if (!base64Image) return;
+    
+    setIsAnalyzing(true);
+    try {
+      const result = await analyzeFood(base64Image, description);
+      console.log('AI анализ:', result);
+      
+      setAnalyzeResult(result);
+      
+      // Auto-fill form fields with AI results
+      if (result.name) {
+        form.setFieldsValue({ foodName: result.name });
+      }
+      
+      message.success('Анализ фото выполнен успешно');
+    } catch (error) {
+      console.error('Ошибка при анализе фото:', error);
+      message.error('Не удалось проанализировать фото. Пожалуйста, заполните данные вручную.');
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -86,7 +125,12 @@ const AddFood = ({ onSave, onCancel }) => {
       name: values.foodName,
       description: values.foodDescription,
       photo: photoPreview, // Compressed image as base64
-      nutrients: null, // Will be filled by AI analysis later
+      nutrients: analyzeResult ? {
+        calories: analyzeResult.calories || 0,
+        protein: analyzeResult.protein || 0,
+        fat: analyzeResult.fat || 0,
+        carbs: analyzeResult.carbs || 0
+      } : null,
     };
 
     // Get today's date in YYYY-MM-DD format
@@ -187,12 +231,41 @@ const AddFood = ({ onSave, onCancel }) => {
                   alt="Food"
                   className="w-full h-full object-cover rounded-lg"
                 />
+                {isAnalyzing && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                    <Spin tip="Анализ..." />
+                  </div>
+                )}
               </div>
             ) : (
               uploadButton
             )}
           </Upload>
         </Form.Item>
+        
+        {analyzeResult && (
+          <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+            <h4 className="text-green-800 font-medium mb-2">Результаты анализа:</h4>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex items-center">
+                <span className="font-medium mr-2">Калории:</span>
+                <span>{analyzeResult.calories || 0} ккал</span>
+              </div>
+              <div className="flex items-center">
+                <span className="font-medium mr-2">Белки:</span>
+                <span>{analyzeResult.protein || 0} г</span>
+              </div>
+              <div className="flex items-center">
+                <span className="font-medium mr-2">Жиры:</span>
+                <span>{analyzeResult.fat || 0} г</span>
+              </div>
+              <div className="flex items-center">
+                <span className="font-medium mr-2">Углеводы:</span>
+                <span>{analyzeResult.carbs || 0} г</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Form.Item className="mt-6">
           <div className="flex gap-4">
@@ -207,7 +280,7 @@ const AddFood = ({ onSave, onCancel }) => {
               type="primary"
               htmlType="submit"
               loading={isSubmitting}
-              disabled={isCompressing}
+              disabled={isCompressing || isAnalyzing}
               className="flex-1"
             >
               Сохранить
