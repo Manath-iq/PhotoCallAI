@@ -42,15 +42,22 @@ const UserProfile = ({ onComplete }) => {
       if (webApp.MainButton) {
         webApp.MainButton.setText('Сохранить');
         webApp.MainButton.show();
+        // Set color to match app theme
+        webApp.MainButton.setParams({
+          color: '#00b96b',
+          text_color: '#ffffff',
+          is_active: true,
+          is_visible: true
+        });
         webApp.MainButton.onClick(handleMainButtonClick);
       }
     }
     
+    // Keep MainButton visible when component unmounts
     return () => {
       // Clean up when component unmounts
       if (webApp && webApp.MainButton) {
         webApp.MainButton.offClick(handleMainButtonClick);
-        webApp.MainButton.hide();
       }
     };
   }, [webApp, form]);
@@ -118,11 +125,6 @@ const UserProfile = ({ onComplete }) => {
       // Notify parent component
       if (onComplete) {
         onComplete(values);
-      }
-      
-      // Hide the Main Button after submission
-      if (webApp && webApp.MainButton) {
-        webApp.MainButton.hide();
       }
     } catch (error) {
       console.error('Error saving profile:', error);

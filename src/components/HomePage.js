@@ -45,16 +45,27 @@ const HomePage = () => {
   useEffect(() => {
     if (webApp && webApp.MainButton) {
       if (!showProfileForm && !showAddFood) {
+        // Main screen - show "Add Food" button
+        webApp.MainButton.setText('Добавить приём пищи');
+        webApp.MainButton.setParams({
+          color: '#00b96b',
+          text_color: '#ffffff',
+        });
         webApp.MainButton.onClick(handleAddFood);
         webApp.MainButton.show();
-      } else {
+      } else if (showAddFood) {
+        // When adding food, hide the main button 
+        // (AddFood component handles its own buttons)
         webApp.MainButton.hide();
+        webApp.MainButton.offClick(handleAddFood);
       }
+      // When showing profile form, don't do anything with MainButton
+      // (UserProfile component handles its own MainButton)
     }
 
     // Cleanup
     return () => {
-      if (webApp && webApp.MainButton) {
+      if (webApp && webApp.MainButton && !showProfileForm) {
         webApp.MainButton.offClick(handleAddFood);
       }
     };
