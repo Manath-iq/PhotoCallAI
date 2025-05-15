@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { STORAGE_KEYS, loadFromStorage, saveToStorage } from '../utils/storage';
 import UserProfile from './UserProfile';
 import ProfileIcon from './ProfileIcon';
 import EmptyFoodDiary from './EmptyFoodDiary';
 import AddFood from './AddFood';
 import DailySummary from './DailySummary';
+import NutritionGauges from './NutritionGauges';
 import { useTelegram } from '../TelegramContext';
 import { Empty, List, Tag, Divider, Tooltip, message } from 'antd';
 import { DeleteOutlined, PlusOutlined, CalendarOutlined, LineChartOutlined } from '@ant-design/icons';
@@ -16,6 +17,9 @@ const HomePage = () => {
   const [showAddFood, setShowAddFood] = useState(false);
   const [showDailySummary, setShowDailySummary] = useState(false);
   const [foodDiary, setFoodDiary] = useState([]);
+  const [nutritionTotals, setNutritionTotals] = useState({ calories: 0, protein: 0, fat: 0, carbs: 0 });
+  const [animateGauges, setAnimateGauges] = useState(false);
+  const prevFoodDiaryLengthRef = useRef(0);
   const { webApp, user } = useTelegram();
 
   useEffect(() => {
@@ -69,6 +73,33 @@ const HomePage = () => {
       }
     };
   }, [webApp, showProfileForm, showAddFood, showDailySummary]);
+
+  // Calculate nutrition totals whenever the food diary changes
+  useEffect(() => {
+    const totals = calculateNutritionTotals(foodDiary);
+    setNutritionTotals(totals);
+    
+    // Trigger animation if a new item was added or removed
+    if (foodDiary.length !== prevFoodDiaryLengthRef.current) {
+      setAnimateGauges(true);
+      const timer = setTimeout(() => setAnimateGauges(false), 1000);
+      prevFoodDiaryLengthRef.current = foodDiary.length;
+      return () => clearTimeout(timer);
+    }
+  }, [foodDiary]);
+
+  // Calculate the total nutrition values from all food items
+  const calculateNutritionTotals = (foodItems) => {
+    return foodItems.reduce((totals, item) => {
+      const nutrients = item.nutrients || {};
+      return {
+        calories: totals.calories + (parseFloat(nutrients.calories) || 0),
+        protein: totals.protein + (parseFloat(nutrients.protein) || 0),
+        fat: totals.fat + (parseFloat(nutrients.fat) || 0),
+        carbs: totals.carbs + (parseFloat(nutrients.carbs) || 0)
+      };
+    }, { calories: 0, protein: 0, fat: 0, carbs: 0 });
+  };
 
   const handleProfileComplete = (profile) => {
     setUserProfile(profile);
@@ -185,6 +216,15 @@ const HomePage = () => {
           <EmptyFoodDiary />
         ) : (
           <div className="mb-4">
+            {/* Nutrition Gauges */}
+            <NutritionGauges
+              calories={nutritionTotals.calories}
+              protein={nutritionTotals.protein}
+              fat={nutritionTotals.fat}
+              carbs={nutritionTotals.carbs}
+              showAnimation={animateGauges}
+            />
+            
             <Card className="mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold m-0">Приёмы пищи сегодня</h2>

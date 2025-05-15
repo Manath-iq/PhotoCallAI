@@ -1,0 +1,55 @@
+.nutrition-gauges-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.gauges-title {
+  text-align: center;
+  margin-bottom: 16px !important;
+  color: var(--tg-theme-text-color, #000);
+}
+
+.gauges-container {
+  padding: 0 8px;
+}
+
+.gauge-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.gauge-label {
+  margin-top: -8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tg-theme-text-color, #333);
+  text-align: center;
+}
+
+/* Make gauges responsive */
+@media (max-width: 480px) {
+  .gauge-wrapper svg {
+    max-height: 120px;
+  }
+}
+
+/* Animation class for gauge updates */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.gauge-update-animation {
+  animation: pulse 0.5s ease-in-out;
+} 
