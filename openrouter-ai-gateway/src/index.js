@@ -252,15 +252,44 @@ export default {
 				? `Информация о пользователе: возраст - ${userInfo.age}, пол - ${userInfo.gender}, вес - ${userInfo.weight} кг, рост - ${userInfo.height} см, цель - ${userInfo.goal}`
 				: 'Информация о пользователе отсутствует';
 
-			const mealsText = meals.map((meal, index) => 
-				`Прием пищи ${index + 1}: ${meal.name || 'Без названия'}\n` +
-				`Время: ${meal.time || 'Не указано'}\n` +
-				`Калории: ${meal.calories || 'Не указано'} ккал\n` +
-				`Белки: ${meal.protein || 'Не указано'} г\n` +
-				`Жиры: ${meal.fat || 'Не указано'} г\n` +
-				`Углеводы: ${meal.carbs || 'Не указано'} г\n` +
-				`Описание: ${meal.description || 'Нет описания'}`
-			).join('\n\n');
+			// Calculate total nutrients for the day
+			let totalCalories = 0;
+			let totalProtein = 0;
+			let totalFat = 0;
+			let totalCarbs = 0;
+			
+			const mealsText = meals.map((meal, index) => {
+				// Extract nutrients from meal object
+				const nutrients = meal.nutrients || {};
+				const calories = nutrients.calories || 0;
+				const protein = nutrients.protein || 0;
+				const fat = nutrients.fat || 0;
+				const carbs = nutrients.carbs || 0;
+				
+				// Add to totals
+				totalCalories += parseFloat(calories) || 0;
+				totalProtein += parseFloat(protein) || 0;
+				totalFat += parseFloat(fat) || 0;
+				totalCarbs += parseFloat(carbs) || 0;
+				
+				return `Прием пищи ${index + 1}: ${meal.name || 'Без названия'}\n` +
+				`Тип: ${meal.mealType || 'Не указано'}\n` +
+				`Время: ${meal.timestamp ? new Date(meal.timestamp).toLocaleTimeString() : 'Не указано'}\n` +
+				`Калории: ${calories} ккал\n` +
+				`Белки: ${protein} г\n` +
+				`Жиры: ${fat} г\n` +
+				`Углеводы: ${carbs} г\n` +
+				`Описание: ${meal.description || 'Нет описания'}`;
+			}).join('\n\n');
+			
+			// Add summary of total nutrients
+			const nutritionSummary = `
+Итого за день:
+- Калории: ${totalCalories.toFixed(1)} ккал
+- Белки: ${totalProtein.toFixed(1)} г
+- Жиры: ${totalFat.toFixed(1)} г
+- Углеводы: ${totalCarbs.toFixed(1)} г
+`;
 
 			// Отправляем запрос к API
 			const response = await openai.chat.completions.create({
@@ -268,11 +297,11 @@ export default {
 				messages: [
 					{
 						role: 'system',
-						content: 'Ты эксперт-диетолог. Проанализируй дневник питания пользователя и дай рекомендации. Ответ структурируй так: 1) Общая оценка рациона, 2) Анализ БЖУ и калорийности, 3) Рекомендации по улучшению, 4) Советы на завтра.'
+						content: 'Ты эксперт-диетолог. Проанализируй дневник питания пользователя и дай КРАТКИЕ, ЧЕТКИЕ рекомендации. В каждом пункте пиши не более 2-3 предложений, будь максимально конкретным. Ответ структурируй так: 1) Общая оценка рациона (1-2 предложения), 2) Анализ БЖУ и калорийности (2-3 предложения), 3) Рекомендации по улучшению (2-3 конкретных совета), 4) Советы на завтра (1-2 предложения). Основывай рекомендации на цели пользователя (похудение/набор массы/поддержание формы) и его физических параметрах.'
 					},
 					{
 						role: 'user',
-						content: `${userInfoText}\n\nДневник питания за день:\n\n${mealsText}\n\nПроанализируй мой рацион и дай рекомендации.`
+						content: `${userInfoText}\n\nДневник питания за день:\n\n${mealsText}\n\n${nutritionSummary}\n\nПроанализируй мой рацион и дай рекомендации.`
 					}
 				],
 				max_tokens: 1000,

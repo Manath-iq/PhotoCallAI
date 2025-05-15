@@ -58,6 +58,10 @@ const DailySummary = ({ onClose, onClearDiary }) => {
       // Load user profile
       const userProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
       
+      if (!userProfile) {
+        throw new Error('Профиль пользователя не найден. Пожалуйста, заполните профиль.');
+      }
+      
       // Get summary from API
       const result = await getDailySummary(meals, userProfile);
       setSummary(result);
@@ -125,10 +129,10 @@ const DailySummary = ({ onClose, onClearDiary }) => {
     
     // Replace numbered list markers (1., 2., etc.) with section headers
     const formattedText = textWithParagraphs
-      .replace(/1\.\s*(.*?)(?=<br\/>2\.|$)/s, '<strong class="text-lg">Общая оценка рациона</strong><p>$1</p>')
-      .replace(/2\.\s*(.*?)(?=<br\/>3\.|$)/s, '<strong class="text-lg">Анализ БЖУ и калорийности</strong><p>$1</p>')
-      .replace(/3\.\s*(.*?)(?=<br\/>4\.|$)/s, '<strong class="text-lg">Рекомендации по улучшению</strong><p>$1</p>')
-      .replace(/4\.\s*(.*?)(?=$)/s, '<strong class="text-lg">Советы на завтра</strong><p>$1</p>');
+      .replace(/1\.\s*(.*?)(?=<br\/>2\.|$)/s, '<div class="mb-4"><strong class="text-lg text-green-700">Общая оценка рациона</strong><p class="mt-2">$1</p></div>')
+      .replace(/2\.\s*(.*?)(?=<br\/>3\.|$)/s, '<div class="mb-4"><strong class="text-lg text-amber-700">Анализ БЖУ и калорийности</strong><p class="mt-2">$1</p></div>')
+      .replace(/3\.\s*(.*?)(?=<br\/>4\.|$)/s, '<div class="mb-4"><strong class="text-lg text-blue-700">Рекомендации по улучшению</strong><p class="mt-2">$1</p></div>')
+      .replace(/4\.\s*(.*?)(?=$)/s, '<div class="mb-4"><strong class="text-lg text-purple-700">Советы на завтра</strong><p class="mt-2">$1</p></div>');
     
     return { __html: formattedText };
   };
