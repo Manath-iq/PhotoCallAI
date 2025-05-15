@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTelegram } from '../TelegramContext';
 import { STORAGE_KEYS, loadFromStorage } from '../utils/storage';
-import { Avatar } from 'antd';
+import { Avatar, Button } from 'antd';
 import { UserOutlined, EditOutlined } from '@ant-design/icons';
 import './ProfileIcon.css';
 
@@ -127,49 +127,50 @@ const ProfileIcon = ({ onProfileClick }) => {
       </div>
 
       {showDropdown && userProfile && (
-        <div className="absolute top-full left-0 bg-white rounded-xl shadow-lg mt-2 p-4 z-10 animate-fadeIn w-full min-w-[280px]">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-bold text-gray-800 m-0">Профиль</h3>
-            <button 
+        <div className="absolute top-full left-0 bg-white rounded-xl shadow-lg mt-2 pt-3 px-4 pb-4 z-10 animate-fadeIn w-full min-w-[280px]">
+          <div className="flex flex-col items-center mb-1">
+            <h3 className="text-lg font-bold text-gray-800 m-0 w-full text-center">Профиль</h3>
+            <Button 
               onClick={handleEditClick}
-              className="flex items-center text-primary hover:text-primary-dark"
+              className="bg-primary hover:bg-primary-dark text-white w-full mt-2"
+              icon={<EditOutlined />}
+              type="primary"
             >
-              <EditOutlined /> 
-              <span className="ml-1">Изменить</span>
-            </button>
+              Изменить
+            </Button>
           </div>
           
-          <div className="border-t border-gray-200 pt-2">
+          <div className="border-t border-gray-200 pt-1">
             <div className="grid grid-cols-2 gap-2">
-              <div className="py-2">
+              <div className="py-2 text-center">
                 <p className="text-sm text-gray-500 m-0">Возраст</p>
                 <p className="font-semibold m-0">{userProfile.age} лет</p>
               </div>
               
-              <div className="py-2">
+              <div className="py-2 text-center">
                 <p className="text-sm text-gray-500 m-0">Пол</p>
                 <p className="font-semibold m-0">
                   {userProfile.gender === 'male' ? 'Мужской' : 'Женский'}
                 </p>
               </div>
               
-              <div className="py-2">
+              <div className="py-2 text-center">
                 <p className="text-sm text-gray-500 m-0">Рост</p>
                 <p className="font-semibold m-0">{userProfile.height} см</p>
               </div>
               
-              <div className="py-2">
+              <div className="py-2 text-center">
                 <p className="text-sm text-gray-500 m-0">Вес</p>
                 <p className="font-semibold m-0">{userProfile.weight} кг</p>
               </div>
               
-              <div className="py-2">
+              <div className="py-2 text-center">
                 <p className="text-sm text-gray-500 m-0">Цель</p>
                 <p className="font-semibold m-0">{getGoalText(userProfile.goal)}</p>
               </div>
               
               {bmi && (
-                <div className="py-2">
+                <div className="py-2 text-center">
                   <p className="text-sm text-gray-500 m-0">ИМТ</p>
                   <p className="font-semibold m-0">{bmi} ({bmiStatus})</p>
                 </div>
