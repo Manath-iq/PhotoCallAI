@@ -48,8 +48,8 @@ const AddFood = ({ onSave, onCancel }) => {
         const base64Data = compressedImage.split(',')[1];
         setPhotoBase64(base64Data);
         
-        // After compressing, start analyzing the image
-        await analyzePhotoIfAvailable(base64Data, form.getFieldValue('foodDescription'));
+        // We no longer analyze the photo right away
+        // We'll do it when the user clicks save
       } catch (error) {
         console.error('Error compressing image:', error);
         message.error('Ошибка при обработке изображения');
@@ -70,25 +70,24 @@ const AddFood = ({ onSave, onCancel }) => {
   };
   
   // Analyze photo using AI
-  const analyzePhotoIfAvailable = async (base64Image, description) => {
-    if (!base64Image) return;
+  const analyzePhotoIfAvailable = async (base64Image, foodName, description) => {
+    if (!base64Image) return null;
     
     setIsAnalyzing(true);
     try {
-      const result = await analyzeFood(base64Image, description);
+      // Pass both the food name and description for more accurate analysis
+      const combinedDescription = `${foodName || ''} ${description || ''}`.trim();
+      const result = await analyzeFood(base64Image, combinedDescription);
       console.log('AI анализ:', result);
       
       setAnalyzeResult(result);
       
-      // Auto-fill form fields with AI results
-      if (result.name) {
-        form.setFieldsValue({ foodName: result.name });
-      }
-      
       message.success('Анализ фото выполнен успешно');
+      return result;
     } catch (error) {
       console.error('Ошибка при анализе фото:', error);
       message.error('Не удалось проанализировать фото. Пожалуйста, заполните данные вручную.');
+      return null;
     } finally {
       setIsAnalyzing(false);
     }
@@ -117,38 +116,60 @@ const AddFood = ({ onSave, onCancel }) => {
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
 
-    // Create a new food entry object
-    const newFoodEntry = {
-      id: Date.now(), // Using timestamp as a simple unique ID
-      timestamp: new Date().toISOString(),
-      mealType: values.mealType,
-      name: values.foodName,
-      description: values.foodDescription,
-      photo: photoPreview, // Compressed image as base64
-      nutrients: analyzeResult ? {
-        calories: analyzeResult.calories || 0,
-        protein: analyzeResult.protein || 0,
-        fat: analyzeResult.fat || 0,
-        carbs: analyzeResult.carbs || 0
-      } : null,
-    };
+    let foodName = values.foodName;
+    let aiResult = analyzeResult;
 
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Load existing entries for today
-    const existingEntries = loadFromStorage(`${STORAGE_KEYS.FOOD_DIARY}_${today}`) || [];
-    
-    // Add new entry
-    const updatedEntries = [...existingEntries, newFoodEntry];
-    
-    // Save to localStorage
-    saveToStorage(`${STORAGE_KEYS.FOOD_DIARY}_${today}`, updatedEntries);
-    
-    // Call parent callback with the new entry
-    onSave(newFoodEntry);
-    
-    setIsSubmitting(false);
+    try {
+      // If we have a photo, analyze it now (when saving)
+      if (photoBase64 && !isAnalyzing) {
+        aiResult = await analyzePhotoIfAvailable(
+          photoBase64, 
+          values.foodName, 
+          values.foodDescription
+        );
+
+        // If no food name is provided but we have a photo with AI analysis
+        if (!values.foodName && aiResult && aiResult.name) {
+          foodName = aiResult.name;
+        }
+      }
+
+      // Create a new food entry object
+      const newFoodEntry = {
+        id: Date.now(), // Using timestamp as a simple unique ID
+        timestamp: new Date().toISOString(),
+        mealType: values.mealType,
+        name: foodName || 'Без названия',
+        description: values.foodDescription,
+        photo: photoPreview, // Compressed image as base64
+        nutrients: aiResult ? {
+          calories: aiResult.calories || 0,
+          protein: aiResult.protein || 0,
+          fat: aiResult.fat || 0,
+          carbs: aiResult.carbs || 0
+        } : null,
+      };
+
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Load existing entries for today
+      const existingEntries = loadFromStorage(`${STORAGE_KEYS.FOOD_DIARY}_${today}`) || [];
+      
+      // Add new entry
+      const updatedEntries = [...existingEntries, newFoodEntry];
+      
+      // Save to localStorage
+      saveToStorage(`${STORAGE_KEYS.FOOD_DIARY}_${today}`, updatedEntries);
+      
+      // Call parent callback with the new entry
+      onSave(newFoodEntry);
+    } catch (error) {
+      console.error('Ошибка при сохранении:', error);
+      message.error('Ошибка при сохранении. Пожалуйста, попробуйте снова.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Set WebApp header for this screen
@@ -172,36 +193,43 @@ const AddFood = ({ onSave, onCancel }) => {
         }}
         className="mt-4"
       >
-        <Form.Item label="Добавить фото блюда" className="mb-6">
-          <Upload
-            name="avatar"
-            listType="picture-card"
-            className="food-photo-uploader"
-            showUploadList={false}
-            customRequest={({ onSuccess }) => {
-              setTimeout(() => {
-                onSuccess("ok", null);
-              }, 0);
-            }}
-            onChange={handlePhotoChange}
-          >
-            {photoPreview ? (
-              <div className="relative w-full h-full">
-                <img
-                  src={photoPreview}
-                  alt="Food"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-                {isAnalyzing && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
-                    <Spin tip="Анализ..." />
-                  </div>
-                )}
-              </div>
-            ) : (
-              uploadButton
-            )}
-          </Upload>
+        <Form.Item 
+          label="Добавить фото блюда" 
+          className="mb-6 w-full"
+          style={{ width: '100%' }}
+        >
+          <div style={{ width: '100%' }}>
+            <Upload
+              name="avatar"
+              listType="picture-card"
+              className="food-photo-uploader"
+              showUploadList={false}
+              style={{ width: '100%' }}
+              customRequest={({ onSuccess }) => {
+                setTimeout(() => {
+                  onSuccess("ok", null);
+                }, 0);
+              }}
+              onChange={handlePhotoChange}
+            >
+              {photoPreview ? (
+                <div className="relative w-full h-full">
+                  <img
+                    src={photoPreview}
+                    alt="Food"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  {isAnalyzing && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                      <Spin tip="Анализ..." />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                uploadButton
+              )}
+            </Upload>
+          </div>
         </Form.Item>
         
         {analyzeResult && (
@@ -271,11 +299,11 @@ const AddFood = ({ onSave, onCancel }) => {
             <Button
               type="primary"
               htmlType="submit"
-              loading={isSubmitting}
-              disabled={isCompressing || isAnalyzing}
+              loading={isSubmitting || isAnalyzing}
+              disabled={isCompressing}
               className="flex-1"
             >
-              Сохранить
+              {isAnalyzing ? "Анализ..." : "Сохранить"}
             </Button>
           </div>
         </Form.Item>
