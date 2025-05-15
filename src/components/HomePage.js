@@ -6,7 +6,7 @@ import EmptyFoodDiary from './EmptyFoodDiary';
 import AddFood from './AddFood';
 import DailySummary from './DailySummary';
 import { useTelegram } from '../TelegramContext';
-import { Empty, List, Tag, Divider, Tooltip, message, Alert } from 'antd';
+import { Empty, List, Tag, Divider, Tooltip, message } from 'antd';
 import { DeleteOutlined, PlusOutlined, CalendarOutlined, LineChartOutlined } from '@ant-design/icons';
 import { Button, Card } from './common';
 
@@ -178,15 +178,6 @@ const HomePage = () => {
             <span className="font-medium">{formatDate()}</span>
           </div>
         </div>
-        
-        <Alert 
-          message="Приватность"
-          description="Все данные хранятся только на вашем устройстве. Фото отправляются на сервер только для анализа и не сохраняются."
-          type="info"
-          showIcon
-          closable
-          className="mb-4"
-        />
       </div>
       
       <div className="flex-1 overflow-auto px-4 pb-4">

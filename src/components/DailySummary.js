@@ -3,7 +3,7 @@ import { useTelegram } from '../TelegramContext';
 import { STORAGE_KEYS, loadFromStorage, saveToStorage } from '../utils/storage';
 import { getDailySummary } from '../utils/apiService';
 import { Typography, Card, Spin, Result, Modal, Divider } from 'antd';
-import { ArrowLeftOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined } from '@ant-design/icons';
 import { Button } from './common';
 
 const { Title, Paragraph, Text } = Typography;
@@ -99,12 +99,6 @@ const DailySummary = ({ onClose, onClearDiary }) => {
     return (
       <div className="p-4">
         <div className="flex items-center mb-4">
-          <Button 
-            type="text" 
-            icon={<ArrowLeftOutlined />} 
-            onClick={onClose}
-            className="mr-2"
-          />
           <h2 className="text-xl font-bold text-gray-800 m-0">Итоги дня</h2>
         </div>
         
@@ -144,12 +138,6 @@ const DailySummary = ({ onClose, onClearDiary }) => {
       {/* Fixed header */}
       <div className="sticky top-0 bg-white z-10 p-4 border-b">
         <div className="flex items-center">
-          <Button 
-            type="text" 
-            icon={<ArrowLeftOutlined />} 
-            onClick={onClose}
-            className="mr-2"
-          />
           <h2 className="text-xl font-bold text-gray-800 m-0">Итоги дня</h2>
         </div>
       </div>

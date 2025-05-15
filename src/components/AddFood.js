@@ -4,7 +4,7 @@ import { STORAGE_KEYS, saveToStorage, loadFromStorage } from '../utils/storage';
 import { compressImage } from '../utils/imageCompressor';
 import { analyzeFood } from '../utils/apiService';
 import { Form, Input, Select, Upload, message, Spin } from 'antd';
-import { PlusOutlined, CameraOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { PlusOutlined, CameraOutlined } from '@ant-design/icons';
 import { Button } from './common';
 import './AddFood.css';
 
@@ -159,15 +159,7 @@ const AddFood = ({ onSave, onCancel }) => {
 
   return (
     <div className="p-4 max-w-full">
-      <div className="flex items-center mb-4">
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
-          onClick={onCancel}
-          className="mr-2"
-        />
-        <h2 className="text-xl font-bold text-gray-800 m-0">Добавить приём пищи</h2>
-      </div>
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Добавить приём пищи</h2>
       
       <Form
         form={form}
@@ -180,38 +172,7 @@ const AddFood = ({ onSave, onCancel }) => {
         }}
         className="mt-4"
       >
-        <Form.Item
-          label="Тип приёма пищи"
-          name="mealType"
-          rules={[{ required: true, message: 'Пожалуйста, выберите тип' }]}
-        >
-          <Select>
-            <Option value="breakfast">Завтрак</Option>
-            <Option value="lunch">Обед</Option>
-            <Option value="dinner">Ужин</Option>
-            <Option value="snack">Перекус</Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          label="Название блюда"
-          name="foodName"
-          rules={[{ required: true, message: 'Пожалуйста, введите название' }]}
-        >
-          <Input placeholder="Например: Овсянка с фруктами" />
-        </Form.Item>
-
-        <Form.Item
-          label="Описание (ингредиенты, размер порции)"
-          name="foodDescription"
-        >
-          <TextArea 
-            placeholder="Например: 200г овсянки, банан, 10г мёда" 
-            rows={3}
-          />
-        </Form.Item>
-
-        <Form.Item label="Добавить фото блюда">
+        <Form.Item label="Добавить фото блюда" className="mb-6">
           <Upload
             name="avatar"
             listType="picture-card"
@@ -266,6 +227,37 @@ const AddFood = ({ onSave, onCancel }) => {
             </div>
           </div>
         )}
+
+        <Form.Item
+          label="Тип приёма пищи"
+          name="mealType"
+          rules={[{ required: true, message: 'Пожалуйста, выберите тип' }]}
+        >
+          <Select>
+            <Option value="breakfast">Завтрак</Option>
+            <Option value="lunch">Обед</Option>
+            <Option value="dinner">Ужин</Option>
+            <Option value="snack">Перекус</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          label="Название блюда"
+          name="foodName"
+          rules={[{ required: true, message: 'Пожалуйста, введите название' }]}
+        >
+          <Input placeholder="Например: Овсянка с фруктами" />
+        </Form.Item>
+
+        <Form.Item
+          label="Описание (ингредиенты, размер порции)"
+          name="foodDescription"
+        >
+          <TextArea 
+            placeholder="Например: 200г овсянки, банан, 10г мёда" 
+            rows={3}
+          />
+        </Form.Item>
 
         <Form.Item className="mt-6">
           <div className="flex gap-4">
