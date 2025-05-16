@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import { TelegramProvider, useTelegram } from './TelegramContext';
 import HomePage from './components/HomePage';
+import GaugeTest from './components/GaugeTest';
 import './components/UserProfile.css';
 import './components/HomePage.css';
 import { ConfigProvider } from 'antd';
@@ -34,10 +35,17 @@ const theme = {
 function AppContent() {
   const { webApp, user, initialized } = useTelegram();
   const [loading, setLoading] = useState(true);
+  const [route, setRoute] = useState('home');
 
   useEffect(() => {
     if (initialized) {
       setLoading(false);
+    }
+
+    // Check if we're in test mode
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('test') === 'gauge') {
+      setRoute('gauge-test');
     }
   }, [initialized]);
 
@@ -55,7 +63,8 @@ function AppContent() {
       }}
     >
       <main>
-        <HomePage />
+        {route === 'home' && <HomePage />}
+        {route === 'gauge-test' && <GaugeTest />}
       </main>
     </div>
   );

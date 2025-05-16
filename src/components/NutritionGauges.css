@@ -20,20 +20,88 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 8px;
+  position: relative;
+}
+
+.gauge-bg {
+  background-color: #000;
+  border-radius: 50%;
+  padding: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 116px;
+  height: 116px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gauge-svg {
+  width: 100px;
+  height: 100px;
+}
+
+.gauge-center-text {
+  fill: #fff !important;
+  font-weight: bold !important;
+  font-size: 32px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.gauge-ratio {
+  color: #4cdf9b;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .gauge-label {
-  margin-top: -8px;
+  margin-top: 4px;
   font-size: 14px;
   font-weight: 500;
   color: var(--tg-theme-text-color, #333);
   text-align: center;
 }
 
+/* Customize gauge colors based on Tailwind theme */
+.gauge-primary {
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px rgba(76, 223, 155, 0.5));
+}
+
+.gauge-secondary {
+  stroke-linecap: round;
+  opacity: 0.3;
+}
+
 /* Make gauges responsive */
 @media (max-width: 480px) {
   .gauge-wrapper svg {
     max-height: 120px;
+  }
+  
+  .gauge-bg {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .gauge-svg {
+    width: 84px;
+    height: 84px;
+  }
+  
+  .gauge-center-text {
+    font-size: 28px !important;
+  }
+  
+  .gauge-ratio {
+    font-size: 11px;
+    bottom: 18px;
   }
 }
 

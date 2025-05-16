@@ -1,9 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import GaugeComponent from 'react-gauge-component';
 import { Card, Typography, Row, Col } from 'antd';
+import { Gauge } from './ui/gauge';
+import { STORAGE_KEYS, loadFromStorage } from '../utils/storage';
 import './NutritionGauges.css';
 
 const { Title } = Typography;
+
+// Calculate Basal Metabolic Rate (BMR) using Mifflin-St Jeor Equation
+const calculateBMR = (gender, weight, height, age) => {
+  if (!gender || !weight || !height || !age) return 0;
+  
+  if (gender === 'male') {
+    return 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    return 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+};
+
+// Calculate Total Daily Energy Expenditure (TDEE)
+// Activity levels: sedentary=1.2, light=1.375, moderate=1.55, active=1.725, very_active=1.9
+const calculateTDEE = (bmr, activityLevel = 1.375) => {
+  return bmr * activityLevel;
+};
+
+// Calculate macros based on goals
+const calculateMacros = (tdee, goal) => {
+  let calorieAdjustment = 0;
+  let proteinPercentage = 0;
+  let fatPercentage = 0;
+  let carbPercentage = 0;
+  
+  switch (goal) {
+    case 'weight_loss':
+      calorieAdjustment = -500; // Deficit for weight loss
+      proteinPercentage = 0.30; // Higher protein for muscle preservation
+      fatPercentage = 0.30;
+      carbPercentage = 0.40;
+      break;
+    case 'maintenance':
+      calorieAdjustment = 0;
+      proteinPercentage = 0.25;
+      fatPercentage = 0.30;
+      carbPercentage = 0.45;
+      break;
+    case 'muscle_gain':
+      calorieAdjustment = 300; // Surplus for muscle gain
+      proteinPercentage = 0.30; // Higher protein for muscle building
+      fatPercentage = 0.25;
+      carbPercentage = 0.45;
+      break;
+    default:
+      calorieAdjustment = 0;
+      proteinPercentage = 0.25;
+      fatPercentage = 0.30;
+      carbPercentage = 0.45;
+  }
+  
+  const adjustedCalories = Math.max(1200, tdee + calorieAdjustment);
+  
+  // 1g protein = 4 calories, 1g fat = 9 calories, 1g carbs = 4 calories
+  const protein = Math.round((adjustedCalories * proteinPercentage) / 4);
+  const fat = Math.round((adjustedCalories * fatPercentage) / 9);
+  const carbs = Math.round((adjustedCalories * carbPercentage) / 4);
+  
+  return {
+    calories: Math.round(adjustedCalories),
+    protein,
+    fat,
+    carbs
+  };
+};
 
 const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }) => {
   // State for animated values
@@ -13,15 +79,31 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
     fat: 0,
     carbs: 0
   });
+  
+  // State for recommended daily values
+  const [dailyRecommended, setDailyRecommended] = useState({
+    calories: 2000, // Default values
+    protein: 50,
+    fat: 70,
+    carbs: 260
+  });
 
-  // Calculate percentages relative to daily recommended values
-  // These are example values - adjust based on user's specific needs
-  const dailyRecommended = {
-    calories: 2000, // 2000 calories per day
-    protein: 50,    // 50g of protein per day
-    fat: 70,        // 70g of fat per day
-    carbs: 260      // 260g of carbs per day
-  };
+  // Load user profile and calculate recommended values
+  useEffect(() => {
+    const userProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+    
+    if (userProfile) {
+      const { gender, weight, height, age, goal } = userProfile;
+      
+      // Calculate BMR and TDEE
+      const bmr = calculateBMR(gender, weight, height, age);
+      const tdee = calculateTDEE(bmr);
+      
+      // Calculate macros based on goal
+      const recommended = calculateMacros(tdee, goal);
+      setDailyRecommended(recommended);
+    }
+  }, []);
 
   // Calculate percentages (capped at 100%)
   const getPercentage = (value, recommended) => {
@@ -74,93 +156,89 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
       <Row gutter={[16, 16]} className="gauges-container">
         <Col xs={12}>
           <div className="gauge-wrapper">
-            <GaugeComponent
-              id="calories-gauge"
-              type="radial"
-              value={getPercentage(animatedValues.calories, dailyRecommended.calories)}
-              labels={{
-                valueLabel: {
-                  formatTextValue: () => `${Math.round(animatedValues.calories)} ккал`,
-                  style: { fontSize: '0.9em', fill: '#000' }
-                }
-              }}
-              arc={{
-                colorArray: ['#5BE12C', '#F5CD19', '#EA4228'],
-                subArcs: [{ limit: 50 }, { limit: 75 }, { limit: 100 }],
-                padding: 0.02,
-                width: 0.3
-              }}
-              pointer={{ elastic: true, animationDelay: 0 }}
-            />
+            <div className="gauge-bg">
+              <Gauge
+                size={100}
+                value={getPercentage(animatedValues.calories, dailyRecommended.calories)}
+                primary="success"
+                showValue={true}
+                className={{
+                  svgClassName: "gauge-svg",
+                  primaryClassName: "gauge-primary",
+                  secondaryClassName: "gauge-secondary",
+                  textClassName: "gauge-center-text"
+                }}
+              />
+              <div className="gauge-ratio">
+                {Math.round(animatedValues.calories)}/{dailyRecommended.calories}кал
+              </div>
+            </div>
             <div className="gauge-label">Калории</div>
           </div>
         </Col>
         <Col xs={12}>
           <div className="gauge-wrapper">
-            <GaugeComponent
-              id="protein-gauge"
-              type="radial"
-              value={getPercentage(animatedValues.protein, dailyRecommended.protein)}
-              labels={{
-                valueLabel: {
-                  formatTextValue: () => `${Math.round(animatedValues.protein)}г`,
-                  style: { fontSize: '0.9em', fill: '#000' }
-                }
-              }}
-              arc={{
-                colorArray: ['#5BE12C', '#F5CD19', '#EA4228'],
-                subArcs: [{ limit: 50 }, { limit: 75 }, { limit: 100 }],
-                padding: 0.02,
-                width: 0.3
-              }}
-              pointer={{ elastic: true, animationDelay: 0 }}
-            />
+            <div className="gauge-bg">
+              <Gauge
+                size={100}
+                value={getPercentage(animatedValues.protein, dailyRecommended.protein)}
+                primary="info"
+                showValue={true}
+                className={{
+                  svgClassName: "gauge-svg",
+                  primaryClassName: "gauge-primary",
+                  secondaryClassName: "gauge-secondary",
+                  textClassName: "gauge-center-text"
+                }}
+              />
+              <div className="gauge-ratio">
+                {Math.round(animatedValues.protein)}/{dailyRecommended.protein}г
+              </div>
+            </div>
             <div className="gauge-label">Белки</div>
           </div>
         </Col>
         <Col xs={12}>
           <div className="gauge-wrapper">
-            <GaugeComponent
-              id="fat-gauge"
-              type="radial"
-              value={getPercentage(animatedValues.fat, dailyRecommended.fat)}
-              labels={{
-                valueLabel: {
-                  formatTextValue: () => `${Math.round(animatedValues.fat)}г`,
-                  style: { fontSize: '0.9em', fill: '#000' }
-                }
-              }}
-              arc={{
-                colorArray: ['#5BE12C', '#F5CD19', '#EA4228'],
-                subArcs: [{ limit: 50 }, { limit: 75 }, { limit: 100 }],
-                padding: 0.02,
-                width: 0.3
-              }}
-              pointer={{ elastic: true, animationDelay: 0 }}
-            />
+            <div className="gauge-bg">
+              <Gauge
+                size={100}
+                value={getPercentage(animatedValues.fat, dailyRecommended.fat)}
+                primary="warning"
+                showValue={true}
+                className={{
+                  svgClassName: "gauge-svg",
+                  primaryClassName: "gauge-primary",
+                  secondaryClassName: "gauge-secondary",
+                  textClassName: "gauge-center-text"
+                }}
+              />
+              <div className="gauge-ratio">
+                {Math.round(animatedValues.fat)}/{dailyRecommended.fat}г
+              </div>
+            </div>
             <div className="gauge-label">Жиры</div>
           </div>
         </Col>
         <Col xs={12}>
           <div className="gauge-wrapper">
-            <GaugeComponent
-              id="carbs-gauge"
-              type="radial"
-              value={getPercentage(animatedValues.carbs, dailyRecommended.carbs)}
-              labels={{
-                valueLabel: {
-                  formatTextValue: () => `${Math.round(animatedValues.carbs)}г`,
-                  style: { fontSize: '0.9em', fill: '#000' }
-                }
-              }}
-              arc={{
-                colorArray: ['#5BE12C', '#F5CD19', '#EA4228'],
-                subArcs: [{ limit: 50 }, { limit: 75 }, { limit: 100 }],
-                padding: 0.02,
-                width: 0.3
-              }}
-              pointer={{ elastic: true, animationDelay: 0 }}
-            />
+            <div className="gauge-bg">
+              <Gauge
+                size={100}
+                value={getPercentage(animatedValues.carbs, dailyRecommended.carbs)}
+                primary="success"
+                showValue={true}
+                className={{
+                  svgClassName: "gauge-svg",
+                  primaryClassName: "gauge-primary",
+                  secondaryClassName: "gauge-secondary",
+                  textClassName: "gauge-center-text"
+                }}
+              />
+              <div className="gauge-ratio">
+                {Math.round(animatedValues.carbs)}/{dailyRecommended.carbs}г
+              </div>
+            </div>
             <div className="gauge-label">Углеводы</div>
           </div>
         </Col>
