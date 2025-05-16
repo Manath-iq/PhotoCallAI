@@ -218,8 +218,8 @@ const HomePage = () => {
           <EmptyFoodDiary />
         </div>
       ) : (
-        <div className="flex-1 overflow-auto px-4 pb-4">
-          <div className="mb-4">
+        <div className="flex-1 overflow-auto px-4 pb-2">
+          <div>
             {/* Nutrition Gauges */}
             <NutritionGauges
               calories={nutritionTotals.calories}
@@ -229,7 +229,7 @@ const HomePage = () => {
               showAnimation={animateGauges}
             />
             
-            <Card className="mb-4">
+            <Card className="mt-3 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold m-0">Приёмы пищи сегодня</h2>
                 <Button 
@@ -298,7 +298,7 @@ const HomePage = () => {
               />
             </Card>
             
-            <div className="text-center">
+            <div className="text-center mt-2 mb-3">
               <Tooltip title="Получите анализ вашего питания за день и рекомендации от AI">
                 <Button 
                   type="primary" 

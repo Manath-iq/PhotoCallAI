@@ -161,7 +161,7 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
     <Card className="nutrition-gauges-card">
       <Title level={4} className="gauges-title">Потребление питательных веществ</Title>
       
-      <Row gutter={[8, 16]} className="gauges-container">
+      <Row gutter={[16, 16]} className="gauges-container">
         <Col xs={6}>
           <div className="gauge-wrapper">
             <Gauge
