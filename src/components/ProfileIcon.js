@@ -97,19 +97,19 @@ const ProfileIcon = ({ onProfileClick }) => {
   return (
     <div className="relative" ref={dropdownRef}>
       <div 
-        className="flex items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200 rounded-lg px-2 py-1"
+        className="flex items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200 rounded-lg py-1"
         onClick={handleProfileToggle}
       >
         {user && user.photo_url ? (
           <Avatar 
             src={user.photo_url} 
-            size={36}
+            size={44}
             className="mr-2"
           />
         ) : (
           <Avatar
-            size={36}
-            icon={<UserOutlined />}
+            size={44}
+            icon={<UserOutlined className="text-xl" />}
             className="mr-2 bg-primary text-white"
           >
             {getUserInitials()}
@@ -117,11 +117,11 @@ const ProfileIcon = ({ onProfileClick }) => {
         )}
         
         <div className="flex flex-col text-left">
-          <span className="font-medium text-sm text-gray-800">
+          <span className="font-medium text-lg text-gray-800">
             {user ? user.first_name : 'Пользователь'}
           </span>
           {user?.username && (
-            <span className="text-xs text-gray-500">@{user.username}</span>
+            <span className="text-sm text-gray-500">@{user.username}</span>
           )}
         </div>
       </div>

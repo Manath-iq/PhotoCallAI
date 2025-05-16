@@ -12,6 +12,39 @@
   overflow: hidden;
 }
 
+.fixed-empty-state {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  max-height: 60vh;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.emoji-image {
+  width: auto;
+  height: auto;
+  max-width: 90%;
+  max-height: 50vh;
+  object-fit: contain;
+}
+
 .empty-diary-text {
   font-size: 1.8rem;
   font-weight: 600;

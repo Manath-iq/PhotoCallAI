@@ -201,20 +201,24 @@ const HomePage = () => {
 
   return (
     <div className="flex flex-col h-full bg-light-bg overflow-x-hidden">
-      <div className="px-4 pt-2">
-        <div className="flex justify-between items-center mb-4">
-          <ProfileIcon onProfileClick={handleEditProfile} />
-          <div className="flex items-center text-gray-700">
-            <CalendarOutlined className="mr-2" />
-            <span className="font-medium">{formatDate()}</span>
+      <div className="px-3 py-2">
+        <div className="flex items-center mb-3">
+          <div className="flex-shrink-0">
+            <ProfileIcon onProfileClick={handleEditProfile} />
+          </div>
+          <div className="ml-auto flex items-center text-gray-700">
+            <CalendarOutlined className="mr-2 text-xl" />
+            <span className="font-medium text-lg">{formatDate()}</span>
           </div>
         </div>
       </div>
       
-      <div className="flex-1 overflow-auto px-4 pb-4">
-        {foodDiary.length === 0 ? (
+      {foodDiary.length === 0 ? (
+        <div className="flex-1 overflow-hidden">
           <EmptyFoodDiary />
-        ) : (
+        </div>
+      ) : (
+        <div className="flex-1 overflow-auto px-4 pb-4">
           <div className="mb-4">
             {/* Nutrition Gauges */}
             <NutritionGauges
@@ -307,8 +311,8 @@ const HomePage = () => {
               </Tooltip>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

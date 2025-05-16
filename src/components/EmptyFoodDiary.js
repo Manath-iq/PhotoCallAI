@@ -20,7 +20,7 @@ const EmptyFoodDiary = () => {
     'Пора восполнить энергию!'
   ];
   
-  // Выбираем случайную картинку и текст при каждом рендере
+  // Выбираем случайную картинку и текст при первом монтировании компонента
   useEffect(() => {
     // Определяем общее количество картинок - предполагается, что в папке есть картинки с 1 по 5
     const totalImages = 5; 
@@ -32,10 +32,10 @@ const EmptyFoodDiary = () => {
   }, []);
   
   return (
-    <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-      <p className="text-3xl font-bold text-gray-700 mb-8 mt-0">{randomText}</p>
+    <div className="flex flex-col items-center justify-center fixed-empty-state">
+      <p className="text-3xl font-bold text-gray-700 mb-6">{randomText}</p>
       
-      <div className="w-full flex justify-center items-center">
+      <div className="image-container flex justify-center items-center">
         {showEmptyFallback ? (
           <Empty 
             description="Добавьте прием пищи" 
@@ -46,7 +46,7 @@ const EmptyFoodDiary = () => {
           <img 
             src={`/images/emojis/emoji_food_${randomImage}.png`} 
             alt="Food emoji"
-            className="w-auto h-auto max-w-[90%] max-h-[50vh] object-contain"
+            className="emoji-image"
             onError={(e) => {
               // Если одна картинка не загрузилась, попробуем другую
               e.target.onerror = null;
