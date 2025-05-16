@@ -153,93 +153,85 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
     <Card className="nutrition-gauges-card">
       <Title level={4} className="gauges-title">Потребление питательных веществ</Title>
       
-      <Row gutter={[16, 16]} className="gauges-container">
-        <Col xs={12}>
+      <Row gutter={[8, 16]} className="gauges-container">
+        <Col xs={6}>
           <div className="gauge-wrapper">
-            <div className="gauge-bg">
-              <Gauge
-                size={100}
-                value={getPercentage(animatedValues.calories, dailyRecommended.calories)}
-                primary="success"
-                showValue={true}
-                className={{
-                  svgClassName: "gauge-svg",
-                  primaryClassName: "gauge-primary",
-                  secondaryClassName: "gauge-secondary",
-                  textClassName: "gauge-center-text"
-                }}
-              />
-              <div className="gauge-ratio">
-                {Math.round(animatedValues.calories)}/{dailyRecommended.calories}кал
-              </div>
-            </div>
+            <Gauge
+              size={80}
+              value={getPercentage(animatedValues.calories, dailyRecommended.calories)}
+              primary="success"
+              showValue={true}
+              className={{
+                svgClassName: "gauge-svg",
+                primaryClassName: "gauge-primary",
+                secondaryClassName: "gauge-secondary",
+                textClassName: "gauge-center-text"
+              }}
+            />
             <div className="gauge-label">Калории</div>
+            <div className="gauge-ratio">
+              {Math.round(animatedValues.calories)}/{dailyRecommended.calories}кал
+            </div>
           </div>
         </Col>
-        <Col xs={12}>
+        <Col xs={6}>
           <div className="gauge-wrapper">
-            <div className="gauge-bg">
-              <Gauge
-                size={100}
-                value={getPercentage(animatedValues.protein, dailyRecommended.protein)}
-                primary="info"
-                showValue={true}
-                className={{
-                  svgClassName: "gauge-svg",
-                  primaryClassName: "gauge-primary",
-                  secondaryClassName: "gauge-secondary",
-                  textClassName: "gauge-center-text"
-                }}
-              />
-              <div className="gauge-ratio">
-                {Math.round(animatedValues.protein)}/{dailyRecommended.protein}г
-              </div>
-            </div>
+            <Gauge
+              size={80}
+              value={getPercentage(animatedValues.protein, dailyRecommended.protein)}
+              primary="info"
+              showValue={true}
+              className={{
+                svgClassName: "gauge-svg",
+                primaryClassName: "gauge-primary",
+                secondaryClassName: "gauge-secondary",
+                textClassName: "gauge-center-text"
+              }}
+            />
             <div className="gauge-label">Белки</div>
+            <div className="gauge-ratio">
+              {Math.round(animatedValues.protein)}/{dailyRecommended.protein}г
+            </div>
           </div>
         </Col>
-        <Col xs={12}>
+        <Col xs={6}>
           <div className="gauge-wrapper">
-            <div className="gauge-bg">
-              <Gauge
-                size={100}
-                value={getPercentage(animatedValues.fat, dailyRecommended.fat)}
-                primary="warning"
-                showValue={true}
-                className={{
-                  svgClassName: "gauge-svg",
-                  primaryClassName: "gauge-primary",
-                  secondaryClassName: "gauge-secondary",
-                  textClassName: "gauge-center-text"
-                }}
-              />
-              <div className="gauge-ratio">
-                {Math.round(animatedValues.fat)}/{dailyRecommended.fat}г
-              </div>
-            </div>
+            <Gauge
+              size={80}
+              value={getPercentage(animatedValues.fat, dailyRecommended.fat)}
+              primary="warning"
+              showValue={true}
+              className={{
+                svgClassName: "gauge-svg",
+                primaryClassName: "gauge-primary",
+                secondaryClassName: "gauge-secondary",
+                textClassName: "gauge-center-text"
+              }}
+            />
             <div className="gauge-label">Жиры</div>
+            <div className="gauge-ratio">
+              {Math.round(animatedValues.fat)}/{dailyRecommended.fat}г
+            </div>
           </div>
         </Col>
-        <Col xs={12}>
+        <Col xs={6}>
           <div className="gauge-wrapper">
-            <div className="gauge-bg">
-              <Gauge
-                size={100}
-                value={getPercentage(animatedValues.carbs, dailyRecommended.carbs)}
-                primary="success"
-                showValue={true}
-                className={{
-                  svgClassName: "gauge-svg",
-                  primaryClassName: "gauge-primary",
-                  secondaryClassName: "gauge-secondary",
-                  textClassName: "gauge-center-text"
-                }}
-              />
-              <div className="gauge-ratio">
-                {Math.round(animatedValues.carbs)}/{dailyRecommended.carbs}г
-              </div>
-            </div>
+            <Gauge
+              size={80}
+              value={getPercentage(animatedValues.carbs, dailyRecommended.carbs)}
+              primary="success"
+              showValue={true}
+              className={{
+                svgClassName: "gauge-svg",
+                primaryClassName: "gauge-primary",
+                secondaryClassName: "gauge-secondary",
+                textClassName: "gauge-center-text"
+              }}
+            />
             <div className="gauge-label">Углеводы</div>
+            <div className="gauge-ratio">
+              {Math.round(animatedValues.carbs)}/{dailyRecommended.carbs}г
+            </div>
           </div>
         </Col>
       </Row>

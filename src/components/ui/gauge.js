@@ -119,7 +119,7 @@ function Gauge({
           : primary === 'info'
             ? '#3b82f6' // Blue
             : primary === 'success'
-              ? '#4cdf9b' // Brighter green for better visibility on dark background
+              ? '#00b96b' // Green matching app theme
               : primary
     }
   
@@ -138,7 +138,7 @@ function Gauge({
               danger: '#dc2626',
               warning: '#f59e0b',
               info: '#3b82f6',
-              success: '#22c55e'
+              success: '#00b96b'
             }[primaryStroke] || primaryStroke
           }
   
@@ -151,7 +151,7 @@ function Gauge({
 
   const secondaryStroke = () => {
     if (!secondary) {
-      return '#555555' // Darker gray for better contrast on dark background
+      return '#E0E0E0' // Light gray for better contrast on light background
     }
   
     else if (typeof secondary === 'string') {
@@ -162,7 +162,7 @@ function Gauge({
           : secondary === 'info'
             ? '#bfdbfe' // Light Blue
             : secondary === 'success'
-              ? '#bbf7d0' // Light Green
+              ? '#d0f0e0' // Light Green
               : secondary
     }
   
@@ -183,7 +183,7 @@ function Gauge({
               danger: '#fecaca',
               warning: '#fde68a',
               info: '#bfdbfe',
-              success: '#bbf7d0'
+              success: '#d0f0e0'
             }[secondaryStroke] || secondaryStroke
           }
   
