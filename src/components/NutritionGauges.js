@@ -71,6 +71,14 @@ const calculateMacros = (tdee, goal) => {
   };
 };
 
+// Компонент, добавляющий символ процента к числу
+const PercentValue = ({ value }) => (
+  <>
+    {Math.round(value)}
+    <tspan className="gauge-percent">%</tspan>
+  </>
+);
+
 const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }) => {
   // State for animated values
   const [animatedValues, setAnimatedValues] = useState({
@@ -163,10 +171,11 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
               showValue={true}
               className={{
                 svgClassName: "gauge-svg",
-                primaryClassName: "gauge-primary",
+                primaryClassName: "gauge-primary gauge-primary-calories",
                 secondaryClassName: "gauge-secondary",
                 textClassName: "gauge-center-text"
               }}
+              renderValue={() => <PercentValue value={getPercentage(animatedValues.calories, dailyRecommended.calories)} />}
             />
             <div className="gauge-label">Калории</div>
             <div className="gauge-ratio">
@@ -183,10 +192,11 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
               showValue={true}
               className={{
                 svgClassName: "gauge-svg",
-                primaryClassName: "gauge-primary",
+                primaryClassName: "gauge-primary gauge-primary-protein",
                 secondaryClassName: "gauge-secondary",
                 textClassName: "gauge-center-text"
               }}
+              renderValue={() => <PercentValue value={getPercentage(animatedValues.protein, dailyRecommended.protein)} />}
             />
             <div className="gauge-label">Белки</div>
             <div className="gauge-ratio">
@@ -203,10 +213,11 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
               showValue={true}
               className={{
                 svgClassName: "gauge-svg",
-                primaryClassName: "gauge-primary",
+                primaryClassName: "gauge-primary gauge-primary-fat",
                 secondaryClassName: "gauge-secondary",
                 textClassName: "gauge-center-text"
               }}
+              renderValue={() => <PercentValue value={getPercentage(animatedValues.fat, dailyRecommended.fat)} />}
             />
             <div className="gauge-label">Жиры</div>
             <div className="gauge-ratio">
@@ -219,14 +230,15 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
             <Gauge
               size={80}
               value={getPercentage(animatedValues.carbs, dailyRecommended.carbs)}
-              primary="success"
+              primary="danger"
               showValue={true}
               className={{
                 svgClassName: "gauge-svg",
-                primaryClassName: "gauge-primary",
+                primaryClassName: "gauge-primary gauge-primary-carbs",
                 secondaryClassName: "gauge-secondary",
                 textClassName: "gauge-center-text"
               }}
+              renderValue={() => <PercentValue value={getPercentage(animatedValues.carbs, dailyRecommended.carbs)} />}
             />
             <div className="gauge-label">Углеводы</div>
             <div className="gauge-ratio">

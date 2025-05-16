@@ -13,6 +13,7 @@ import { cn } from '../../utils/cn';
  * @param {string|Object} props.secondary - Secondary color or set of colors for the gauge, similar to `primary`.
  * @param {Object} props.transition - Transition settings for the gauge's animation, specifying the length, step, and delay of transitions.
  * @param {string|Object} props.className - Class names for different parts of the gauge, including the SVG container and individual elements.
+ * @param {Function} props.renderValue - Optional function to customize how the value is rendered in the center.
  * @returns {JSX.Element} - The rendered Gauge component
  */
 function Gauge({
@@ -33,6 +34,7 @@ function Gauge({
   },
 
   className,
+  renderValue,
 
   ...props
 }) {
@@ -279,7 +281,7 @@ function Gauge({
           fontSize={36}
           className={cn('font-semibold', typeof className === 'object' && className?.textClassName)}
         >
-          {Math.round(strokePercent)}
+          {renderValue ? renderValue() : Math.round(strokePercent)}
         </text>
       )}
     </svg>

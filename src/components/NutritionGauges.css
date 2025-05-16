@@ -3,23 +3,26 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  padding: 16px 8px 12px;
 }
 
 .gauges-title {
   text-align: center;
-  margin-bottom: 16px !important;
+  margin-bottom: 12px !important;
   color: var(--tg-theme-text-color, #000);
+  font-size: 18px !important;
 }
 
 .gauges-container {
-  padding: 0 8px;
+  padding: 0 4px;
+  margin-top: -8px;
 }
 
 .gauge-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   position: relative;
 }
 
@@ -45,22 +48,27 @@
 .gauge-center-text {
   fill: var(--tg-theme-text-color, #000) !important;
   font-weight: bold !important;
-  font-size: 22px !important;
+  font-size: 26px !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.gauge-percent {
+  font-size: 12px !important;
+  font-weight: normal !important;
 }
 
 .gauge-ratio {
   color: var(--tg-theme-accent-text-color, #4cdf9b);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-align: center;
-  margin-top: 2px;
+  margin-top: 0;
   width: 100%;
 }
 
 .gauge-label {
-  margin-top: 2px;
-  font-size: 13px;
+  margin-top: 0;
+  font-size: 12px;
   font-weight: 500;
   color: var(--tg-theme-text-color, #333);
   text-align: center;
@@ -76,6 +84,23 @@
   opacity: 0.3;
 }
 
+/* Специфические цвета для разных типов макронутриентов */
+.gauge-primary-calories {
+  stroke: var(--tg-theme-button-color, #00b96b);
+}
+
+.gauge-primary-protein {
+  stroke: var(--tg-theme-link-color, #3b82f6);
+}
+
+.gauge-primary-fat {
+  stroke: var(--tg-theme-hint-color, #f59e0b);
+}
+
+.gauge-primary-carbs {
+  stroke: #dc2626; /* Красный цвет для углеводов */
+}
+
 /* Make gauges responsive */
 @media (max-width: 480px) {
   .gauge-wrapper {
@@ -88,7 +113,7 @@
   }
   
   .gauge-center-text {
-    font-size: 18px !important;
+    font-size: 22px !important;
   }
   
   .gauge-ratio {
@@ -108,7 +133,7 @@
   }
   
   .gauge-center-text {
-    font-size: 16px !important;
+    font-size: 18px !important;
   }
   
   .gauge-ratio {
