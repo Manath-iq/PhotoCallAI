@@ -249,17 +249,6 @@ const HomePage = () => {
             />
             
             <Card className="mt-3 mb-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold m-0">Приёмы пищи сегодня</h2>
-                <Button 
-                  type="primary" 
-                  icon={<LineChartOutlined />} 
-                  onClick={handleShowDailySummary}
-                >
-                  Итоги дня
-                </Button>
-              </div>
-              
               <List
                 itemLayout="vertical"
                 dataSource={foodDiary}
@@ -279,7 +268,7 @@ const HomePage = () => {
                     ]}
                     extra={
                       item.photo && (
-                        <div className="w-28 h-28 overflow-hidden rounded-lg">
+                        <div className="w-36 h-48 overflow-hidden rounded-lg">
                           <img
                             src={item.photo}
                             alt={item.name}
@@ -289,29 +278,33 @@ const HomePage = () => {
                       )
                     }
                   >
-                    <List.Item.Meta
-                      title={
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold text-lg">{item.name}</span>
-                          <Tag color={getMealTypeColor(item.mealType)}>
-                            {getMealTypeText(item.mealType)}
-                          </Tag>
+                    <div>
+                      {item.description && <p className="text-gray-600 mb-2">{item.description}</p>}
+                      
+                      <div className="flex justify-between items-center mt-3">
+                        <span className="font-semibold text-lg">{item.name}</span>
+                        <Tag color={getMealTypeColor(item.mealType)}>
+                          {getMealTypeText(item.mealType)}
+                        </Tag>
+                      </div>
+                      
+                      {item.nutrients && (
+                        <div className="flex flex-wrap items-center mt-3 text-sm">
+                          <span className="mr-4 font-medium" style={{ color: 'var(--tg-theme-link-color, #3b82f6)' }}>
+                            Б: {item.nutrients.protein}г
+                          </span>
+                          <span className="mr-4 font-medium" style={{ color: 'var(--tg-theme-hint-color, #f59e0b)' }}>
+                            Ж: {item.nutrients.fat}г
+                          </span>
+                          <span className="mr-4 font-medium" style={{ color: '#dc2626' }}>
+                            У: {item.nutrients.carbs}г
+                          </span>
+                          <span className="font-medium" style={{ color: 'var(--tg-theme-button-color, #00b96b)' }}>
+                            Калории: {item.nutrients.calories}ккал
+                          </span>
                         </div>
-                      }
-                      description={
-                        <div>
-                          {item.description && <p className="text-gray-600">{item.description}</p>}
-                          {item.nutrients && (
-                            <div className="flex flex-wrap items-center mt-2 text-xs">
-                              <span className="mr-3">Б: {item.nutrients.protein}г</span>
-                              <span className="mr-3">Ж: {item.nutrients.fat}г</span>
-                              <span className="mr-3">У: {item.nutrients.carbs}г</span>
-                              <span>Калории: {item.nutrients.calories}ккал</span>
-                            </div>
-                          )}
-                        </div>
-                      }
-                    />
+                      )}
+                    </div>
                   </List.Item>
                 )}
               />
