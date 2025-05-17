@@ -26,6 +26,7 @@
   align-items: center;
   margin-bottom: 4px;
   position: relative;
+  text-align: center;
 }
 
 .gauge-bg {
@@ -54,8 +55,8 @@
 }
 
 .gauge-percent {
-  font-size: 12px !important;
-  font-weight: normal !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
   fill: inherit;
 }
 
@@ -72,7 +73,7 @@
   margin-top: 0;
   font-size: 12px;
   font-weight: 500;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--tg-theme-text-color, #000);
   text-align: center;
 }
 

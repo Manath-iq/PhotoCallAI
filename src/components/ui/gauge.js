@@ -280,6 +280,9 @@ function Gauge({
           fill={primaryStroke()}
           fontSize={36}
           className={cn('font-semibold', typeof className === 'object' && className?.textClassName)}
+          style={{
+            dominantBaseline: 'central',
+          }}
         >
           {renderValue ? renderValue() : Math.round(strokePercent)}
         </text>
