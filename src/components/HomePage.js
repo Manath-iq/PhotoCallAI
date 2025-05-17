@@ -248,14 +248,16 @@ const HomePage = () => {
               showAnimation={animateGauges}
             />
             
-            <Card className="mt-3 mb-4">
+            <Card className="mt-3 mb-4 overflow-hidden p-0" style={{ borderRadius: '12px' }}>
               <List
                 itemLayout="vertical"
                 dataSource={foodDiary}
+                className="food-list p-0 m-0"
                 renderItem={item => (
                   <List.Item
                     key={item.id}
-                    className="p-0 mb-4"
+                    className="p-0 mb-4 overflow-hidden"
+                    style={{ borderRadius: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.07)' }}
                     actions={[
                       <Button
                         key="delete"
@@ -269,21 +271,21 @@ const HomePage = () => {
                     ]}
                     extra={
                       item.photo && (
-                        <div className="w-full overflow-hidden" style={{ borderRadius: '12px 12px 0 0' }}>
+                        <div className="w-full overflow-hidden" style={{ borderRadius: '12px', margin: '0' }}>
                           <img
                             src={item.photo}
                             alt={item.name}
                             className="w-full h-64 object-cover"
-                            style={{ display: 'block' }}
+                            style={{ display: 'block', margin: '0' }}
                           />
                         </div>
                       )
                     }
                   >
-                    <div className="px-4 pt-2 pb-4">
+                    <div className="px-4 pt-2 pb-2">
                       {item.description && <p className="text-gray-600 mb-2">{item.description}</p>}
                       
-                      <div className="flex justify-between items-center mt-3">
+                      <div className="flex justify-between items-center">
                         <span className="font-semibold text-lg">{item.name}</span>
                         <Tag color={getMealTypeColor(item.mealType)}>
                           {getMealTypeText(item.mealType)}
@@ -291,17 +293,17 @@ const HomePage = () => {
                       </div>
                       
                       {item.nutrients && (
-                        <div className="flex flex-wrap gap-2 mt-4">
-                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#3b82f6' }}>
+                        <div className="flex flex-nowrap justify-between items-center gap-1 mt-3">
+                          <div className="px-2 py-1 rounded-md text-white font-medium text-xs" style={{ backgroundColor: '#3b82f6' }}>
                             Б: {item.nutrients.protein}г
                           </div>
-                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#f59e0b' }}>
+                          <div className="px-2 py-1 rounded-md text-white font-medium text-xs" style={{ backgroundColor: '#f59e0b' }}>
                             Ж: {item.nutrients.fat}г
                           </div>
-                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#dc2626' }}>
+                          <div className="px-2 py-1 rounded-md text-white font-medium text-xs" style={{ backgroundColor: '#dc2626' }}>
                             У: {item.nutrients.carbs}г
                           </div>
-                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#00b96b' }}>
+                          <div className="px-2 py-1 rounded-md text-white font-medium text-xs" style={{ backgroundColor: '#00b96b' }}>
                             {item.nutrients.calories} ккал
                           </div>
                         </div>
