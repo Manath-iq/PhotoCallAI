@@ -268,11 +268,11 @@ const HomePage = () => {
                     ]}
                     extra={
                       item.photo && (
-                        <div className="w-48 h-36 overflow-hidden rounded-lg">
+                        <div className="w-full mb-4 rounded-lg overflow-hidden">
                           <img
                             src={item.photo}
                             alt={item.name}
-                            className="w-full h-full object-cover"
+                            className="w-full object-cover"
                           />
                         </div>
                       )
@@ -289,35 +289,19 @@ const HomePage = () => {
                       </div>
                       
                       {item.nutrients && (
-                        <div className="flex flex-wrap items-center mt-3 text-sm font-medium">
-                          <span className="mr-4 px-2 py-1 rounded" style={{ 
-                            color: '#fff', 
-                            backgroundColor: 'var(--tg-theme-link-color, #3b82f6)',
-                            fontWeight: '600'
-                          }}>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#3b82f6' }}>
                             Б: {item.nutrients.protein}г
-                          </span>
-                          <span className="mr-4 px-2 py-1 rounded" style={{ 
-                            color: '#fff', 
-                            backgroundColor: 'var(--tg-theme-hint-color, #f59e0b)',
-                            fontWeight: '600'
-                          }}>
+                          </div>
+                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#f59e0b' }}>
                             Ж: {item.nutrients.fat}г
-                          </span>
-                          <span className="mr-4 px-2 py-1 rounded" style={{ 
-                            color: '#fff', 
-                            backgroundColor: '#dc2626',
-                            fontWeight: '600'
-                          }}>
+                          </div>
+                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#dc2626' }}>
                             У: {item.nutrients.carbs}г
-                          </span>
-                          <span className="px-2 py-1 rounded" style={{ 
-                            color: '#fff', 
-                            backgroundColor: 'var(--tg-theme-button-color, #00b96b)',
-                            fontWeight: '600'
-                          }}>
+                          </div>
+                          <div className="px-3 py-1 rounded-md text-white font-medium" style={{ backgroundColor: '#00b96b' }}>
                             {item.nutrients.calories} ккал
-                          </span>
+                          </div>
                         </div>
                       )}
                     </div>
