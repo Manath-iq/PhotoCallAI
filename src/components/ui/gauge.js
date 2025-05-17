@@ -277,7 +277,7 @@ function Gauge({
           textAnchor='middle'
           dominantBaseline='middle'
           alignmentBaseline='central'
-          fill='currentColor'
+          fill={primaryStroke()}
           fontSize={36}
           className={cn('font-semibold', typeof className === 'object' && className?.textClassName)}
         >
