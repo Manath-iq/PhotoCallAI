@@ -255,30 +255,32 @@ const HomePage = () => {
                 renderItem={item => (
                   <List.Item
                     key={item.id}
+                    className="p-0 mb-4"
                     actions={[
                       <Button
                         key="delete"
-                        danger
                         type="text"
-                        icon={<DeleteOutlined />}
+                        icon={<DeleteOutlined style={{ color: '#fff' }} />}
                         onClick={() => handleDeleteFood(item.id)}
+                        style={{ backgroundColor: '#f5222d', color: '#fff', borderRadius: '8px' }}
                       >
                         Удалить
                       </Button>
                     ]}
                     extra={
                       item.photo && (
-                        <div className="w-full mb-4 rounded-lg overflow-hidden">
+                        <div className="w-full overflow-hidden" style={{ borderRadius: '12px 12px 0 0' }}>
                           <img
                             src={item.photo}
                             alt={item.name}
-                            className="w-full object-cover"
+                            className="w-full h-64 object-cover"
+                            style={{ display: 'block' }}
                           />
                         </div>
                       )
                     }
                   >
-                    <div>
+                    <div className="px-4 pt-2 pb-4">
                       {item.description && <p className="text-gray-600 mb-2">{item.description}</p>}
                       
                       <div className="flex justify-between items-center mt-3">
