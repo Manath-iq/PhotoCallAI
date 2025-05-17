@@ -28,8 +28,8 @@ function Gauge({
   secondary,
 
   transition = {
-    length: 1000, // ms
-    step: 200, // ms
+    length: 1200, // ms - increased to match parent animation duration
+    step: 100, // ms - reduced for smoother transition
     delay: 0 // ms
   },
 
@@ -222,7 +222,7 @@ function Gauge({
     strokeLinejoin: 'round',
     strokeDashoffset: 0,
     strokeWidth: strokeWidth,
-    transition: `all ${transition?.length}ms ease ${transition?.delay}ms`,
+    transition: `all ${transition?.length}ms cubic-bezier(0.34, 1.56, 0.64, 1) ${transition?.delay}ms`,
     transformOrigin: '50% 50%',
     shapeRendering: 'geometricPrecision'
   }

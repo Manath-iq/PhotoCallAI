@@ -127,7 +127,7 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
     }
 
     // Animate to new values
-    const animationDuration = 1000; // 1 second
+    const animationDuration = 1200; // A bit longer for smoother animation
     const startTime = performance.now();
     const initialValues = { ...animatedValues };
     const targetValues = { calories, protein, fat, carbs };
@@ -136,9 +136,11 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / animationDuration, 1);
       
-      // Easing function for smooth animation
-      const easeOut = (t) => 1 - Math.pow(1 - t, 2);
-      const easedProgress = easeOut(progress);
+      // Cubic easing for more natural and consistent animation
+      // This creates a smoother start and end to the animation
+      const easedProgress = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
       
       const newValues = {
         calories: initialValues.calories + (targetValues.calories - initialValues.calories) * easedProgress,
@@ -155,13 +157,13 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
     };
     
     requestAnimationFrame(animateValues);
-  }, [calories, protein, fat, carbs, showAnimation]);
+  }, [calories, protein, fat, carbs, showAnimation, animatedValues]);
 
   return (
     <Card className="nutrition-gauges-card">
       <Title level={4} className="gauges-title">Потребление питательных веществ</Title>
       
-      <Row gutter={[16, 16]} className="gauges-container">
+      <Row gutter={[24, 12]} className="gauges-container">
         <Col xs={6}>
           <div className="gauge-wrapper">
             <Gauge
