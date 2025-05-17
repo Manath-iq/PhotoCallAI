@@ -6,6 +6,7 @@ import GaugeTest from './components/GaugeTest';
 import './components/UserProfile.css';
 import './components/HomePage.css';
 import { ConfigProvider } from 'antd';
+import { STORAGE_KEYS, loadFromStorage } from './utils/storage';
 
 // Зеленая тема для Ant Design
 const theme = {
@@ -39,6 +40,10 @@ function AppContent() {
 
   useEffect(() => {
     if (initialized) {
+      // Verify profile data on app initialization
+      const userProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+      console.log('App initialized, user profile data:', userProfile);
+      
       setLoading(false);
     }
 

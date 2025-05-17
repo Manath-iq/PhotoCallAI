@@ -46,8 +46,14 @@ const UserProfile = ({ onComplete }) => {
   useEffect(() => {
     // Try to load existing profile
     const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+    console.log('UserProfile useEffect - loaded profile:', savedProfile);
+    
     if (savedProfile) {
+      console.log('Setting form values with saved profile');
       form.setFieldsValue(savedProfile);
+    } else {
+      console.log('No saved profile found, using default values');
+      form.setFieldsValue(DEFAULT_PROFILE);
     }
     
     // Set back button handler if available
@@ -129,8 +135,14 @@ const UserProfile = ({ onComplete }) => {
         }
       });
       
+      console.log('Saving profile with data:', values);
+      
       // Save to localStorage
       saveToStorage(STORAGE_KEYS.USER_PROFILE, values);
+      
+      // Verify data was saved correctly
+      const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+      console.log('Verification - saved profile:', savedProfile);
       
       // Haptic feedback if available
       if (webApp && webApp.HapticFeedback) {
@@ -145,7 +157,7 @@ const UserProfile = ({ onComplete }) => {
       
       // Notify parent component
       if (onComplete) {
-        onComplete(values);
+        onComplete({...values}); // Pass a copy of values to ensure reference is updated
       }
     } catch (error) {
       console.error('Error saving profile:', error);

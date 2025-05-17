@@ -11,12 +11,20 @@ const ProfileIcon = ({ onProfileClick }) => {
   const { user } = useTelegram();
   const dropdownRef = useRef(null);
 
-  // Загружаем данные профиля из localStorage
-  useEffect(() => {
+  // Function to load user profile data
+  const loadUserProfile = () => {
     const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
     if (savedProfile) {
+      console.log('Loaded profile data:', savedProfile);
       setUserProfile(savedProfile);
+    } else {
+      console.warn('No profile data found in localStorage');
     }
+  };
+
+  // Загружаем данные профиля из localStorage при монтировании компонента
+  useEffect(() => {
+    loadUserProfile();
   }, []);
 
   // Закрываем дропдаун при клике вне его области
@@ -84,6 +92,8 @@ const ProfileIcon = ({ onProfileClick }) => {
   const bmiStatus = getBMIStatus(bmi);
   
   const handleProfileToggle = () => {
+    // Reload user profile data when toggling the dropdown
+    loadUserProfile();
     setShowDropdown(!showDropdown);
   };
 

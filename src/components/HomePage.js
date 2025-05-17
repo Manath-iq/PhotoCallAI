@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { STORAGE_KEYS, loadFromStorage, saveToStorage } from '../utils/storage';
+import { STORAGE_KEYS, loadFromStorage, saveToStorage, debugStorage } from '../utils/storage';
 import UserProfile from './UserProfile';
 import ProfileIcon from './ProfileIcon';
 import EmptyFoodDiary from './EmptyFoodDiary';
@@ -23,12 +23,19 @@ const HomePage = () => {
   const { webApp, user } = useTelegram();
 
   useEffect(() => {
+    // Debug localStorage contents
+    console.log('HomePage mounted - debugging localStorage:');
+    debugStorage();
+    
     // Check if user profile exists
     const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+    console.log('HomePage: Loading user profile', savedProfile);
+    
     if (savedProfile) {
       setUserProfile(savedProfile);
       setShowProfileForm(false);
     } else {
+      console.warn('No user profile found, showing profile form');
       setShowProfileForm(true);
     }
 
@@ -102,11 +109,23 @@ const HomePage = () => {
   };
 
   const handleProfileComplete = (profile) => {
+    console.log('Profile completed with data:', profile);
     setUserProfile(profile);
     setShowProfileForm(false);
+
+    // Force the UI to update with the new profile data
+    const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+    if (savedProfile) {
+      console.log('Successfully verified saved profile data:', savedProfile);
+    }
   };
 
   const handleEditProfile = () => {
+    // Reload the latest profile data before showing the form
+    const savedProfile = loadFromStorage(STORAGE_KEYS.USER_PROFILE);
+    if (savedProfile) {
+      setUserProfile(savedProfile);
+    }
     setShowProfileForm(true);
   };
 
