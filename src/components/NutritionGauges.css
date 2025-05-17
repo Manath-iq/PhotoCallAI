@@ -1,23 +1,23 @@
 .nutrition-gauges-card {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  padding: 8px 16px 6px;
+  padding: 6px 16px 4px;
 }
 
 .gauges-title {
   text-align: center;
-  margin-bottom: 12px !important;
-  margin-top: 2px !important;
+  margin-bottom: 8px !important;
+  margin-top: 0 !important;
   color: var(--tg-theme-text-color, #000);
   font-size: 18px !important;
 }
 
 .gauges-container {
-  padding: 0 8px;
-  margin-top: -2px;
-  margin-bottom: -4px;
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .gauge-wrapper {

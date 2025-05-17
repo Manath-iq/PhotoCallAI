@@ -222,7 +222,7 @@ function Gauge({
     strokeLinejoin: 'round',
     strokeDashoffset: 0,
     strokeWidth: strokeWidth,
-    transition: `all ${transition?.length}ms cubic-bezier(0.34, 1.56, 0.64, 1) ${transition?.delay}ms`,
+    transition: `all ${transition?.length}ms cubic-bezier(0.34, 1.15, 0.64, 1) ${transition?.delay}ms`,
     transformOrigin: '50% 50%',
     shapeRendering: 'geometricPrecision'
   }

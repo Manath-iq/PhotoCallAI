@@ -157,7 +157,7 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
     };
     
     requestAnimationFrame(animateValues);
-  }, [calories, protein, fat, carbs, showAnimation, animatedValues]);
+  }, [calories, protein, fat, carbs, showAnimation]);
 
   return (
     <Card className="nutrition-gauges-card">
