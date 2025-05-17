@@ -275,13 +275,14 @@ function Gauge({
           x='50%'
           y='50%'
           textAnchor='middle'
-          dominantBaseline='middle'
+          dominantBaseline='central'
           alignmentBaseline='central'
           fill={primaryStroke()}
           fontSize={36}
           className={cn('font-semibold', typeof className === 'object' && className?.textClassName)}
           style={{
             dominantBaseline: 'central',
+            alignmentBaseline: 'central',
           }}
         >
           {renderValue ? renderValue() : Math.round(strokePercent)}

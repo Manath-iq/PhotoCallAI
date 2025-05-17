@@ -75,7 +75,7 @@ const calculateMacros = (tdee, goal) => {
 const PercentValue = ({ value }) => (
   <>
     {Math.round(value)}
-    <tspan className="gauge-percent">%</tspan>
+    <tspan className="gauge-percent" dx="-2" dy="0">%</tspan>
   </>
 );
 
@@ -161,9 +161,9 @@ const NutritionGauges = ({ calories, protein, fat, carbs, showAnimation = true }
 
   return (
     <Card className="nutrition-gauges-card">
-      <Title level={4} className="gauges-title">Потребление питательных веществ</Title>
+      <Title level={4} className="gauges-title">Потребление по КБЖУ</Title>
       
-      <Row gutter={[24, 12]} className="gauges-container" justify="center">
+      <Row gutter={[24, 8]} className="gauges-container" justify="center" align="middle">
         <Col xs={6}>
           <div className="gauge-wrapper">
             <Gauge
